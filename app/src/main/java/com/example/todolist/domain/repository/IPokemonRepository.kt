@@ -1,11 +1,9 @@
 package com.example.todolist.domain.repository
 
 import com.example.todolist.data.dto.PokemonListDto
+import com.example.todolist.domain.model.PokemonSummaryList
 import kotlinx.coroutines.flow.Flow
 
 interface IPokemonRepository {
-
-    fun getPokemonList(): Flow<PokemonListDto>
-
-//    fun getPokemonDetail(): Flow<PokemonDetailDto>
+    suspend fun getPokemonList(offset: Int, limit: Int): Flow<PokemonSummaryList>
 }

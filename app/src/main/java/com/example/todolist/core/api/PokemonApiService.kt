@@ -10,5 +10,5 @@ interface PokemonApiService {
     @GET("pokemon")
     suspend fun getPokemonSummaryList(
         @Query("offset") offset: Int, @Query("limit") limit: Int
-    ): Flow<PokemonListDto>
+    ): PokemonListDto
 }
