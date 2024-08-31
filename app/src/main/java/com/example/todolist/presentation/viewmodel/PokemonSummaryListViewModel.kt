@@ -41,7 +41,7 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
                 .catch { e ->
                     _uiState.value =
                         PokemonListUiState.Error(e.message ?: "Unknown error occurred")
-                    isLoading = false;
+                    isLoading = false
                 }
                 .collect { pokemonList ->
                     Log.d("poke", "$limit $currentOffset")

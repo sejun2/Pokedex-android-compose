@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -58,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
+import coil.compose.AsyncImage
 import com.example.todolist.R
 import com.example.todolist.domain.model.PokemonSummary
 import com.example.todolist.presentation.viewmodel.PokemonListUiState
@@ -103,47 +106,51 @@ fun PokemonCard(pokemon: PokemonSummary) {
                 .background(Color.White),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            // Pokemon number
-            Text(
-                text = "#${pokemon.name}",
-                fontWeight = FontWeight.Medium,
-                fontSize = 11.sp,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(bottom = 4.dp, top = 4.dp, end = 4.dp)
-            )
-            // Pokemon image
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),  // 실제 이미지 리소스로 변경 필요
-                contentDescription = "Pokemon ${pokemon.name}",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .offset(y = 20.dp)  // 이미지를 약간 아래로 이동
-                    .zIndex(1f)
-            )
 
-            // Pokemon name
-            Surface(
-                color = Color.LightGray.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.BottomCenter
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Pokemon number
+                Text(
+                    text = "#${pokemon.index}",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(bottom = 4.dp, top = 4.dp, end = 4.dp)
+                )
+
+                // Pokemon image
+                AsyncImage(
+                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.index}.png",
+                    contentDescription = "Pokemon image",
+                    imageLoader = ImageLoader(LocalContext.current),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(120.dp)
+                        .zIndex(1f)
+                )
+
+                // Pokemon name
+                Surface(
+                    color = Color.LightGray.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp).align(Alignment.BottomCenter)
                 ) {
-                    Text(
-                        text = pokemon.name,
-                        fontWeight = FontWeight.W400,
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .padding(vertical = 4.dp, horizontal = 8.dp)
-                    )
+                    Box(
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Text(
+                            text = pokemon.name,
+                            fontWeight = FontWeight.W400,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(vertical = 4.dp, horizontal = 8.dp)
+                        )
+                    }
                 }
             }
+
         }
     }
 }
@@ -221,5 +228,5 @@ fun PokemonList(
 @Preview(showBackground = true, widthDp = 130)
 @Composable
 fun PreviewPokemonCard() {
-    PokemonCard(pokemon = PokemonSummary("TestName", "TestUrl"))
+    PokemonCard(pokemon = PokemonSummary("TestName", "TestUrl", 1))
 }

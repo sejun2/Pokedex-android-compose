@@ -82,6 +82,10 @@ dependencies {
 
     // api client
     implementation(libs.retrofit)
+
+    // coil
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
 }
 
 // Allow references to generated code
