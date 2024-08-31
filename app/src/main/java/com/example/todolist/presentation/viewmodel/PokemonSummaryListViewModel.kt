@@ -1,5 +1,6 @@
 package com.example.todolist.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolist.domain.model.PokemonSummary
@@ -19,21 +20,42 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
     private val _uiState = MutableStateFlow<PokemonListUiState>(PokemonListUiState.Loading)
     val uiState: StateFlow<PokemonListUiState> = _uiState.asStateFlow()
 
-    init {
-        fetchPokemonList()
-    }
+    private var currentOffset = 1
+    private val limit = 30
+    private var isLoading = false
+    private val _pokemonList = mutableListOf<PokemonSummary>()
 
     fun fetchPokemonList() {
+        Log.d("ViewModel", "fetch $isLoading")
+        if (isLoading) return
+
         viewModelScope.launch {
-            getPokemonSummaryListUseCase.execute(100, 30)
-                .onStart { _uiState.value = PokemonListUiState.Loading }
+            isLoading = true
+
+            getPokemonSummaryListUseCase.execute(currentOffset, limit)
+                .onStart {
+                    if (currentOffset == 0) {
+                        _uiState.value = PokemonListUiState.Loading
+                    }
+                }
                 .catch { e ->
-                    _uiState.value = PokemonListUiState.Error(e.message ?: "Unknown error occurred")
+                    _uiState.value =
+                        PokemonListUiState.Error(e.message ?: "Unknown error occurred")
+                    isLoading = false;
                 }
                 .collect { pokemonList ->
-                    _uiState.value = PokemonListUiState.Success(pokemonList.pokemonSummaryList)
+                    Log.d("poke", "$limit $currentOffset")
+
+                    _pokemonList.addAll(pokemonList.pokemonSummaryList)
+                    _uiState.value = PokemonListUiState.Success(_pokemonList.toList())
+                    currentOffset += limit
+                    isLoading = false
                 }
         }
+    }
+
+    fun loadMore() {
+        fetchPokemonList()
     }
 }
 

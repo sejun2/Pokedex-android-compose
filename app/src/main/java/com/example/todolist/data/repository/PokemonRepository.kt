@@ -16,7 +16,5 @@ class PokemonRepository @Inject constructor(private val pokemonApiService: Pokem
     override suspend fun getPokemonList(offset: Int, limit: Int): Flow<PokemonSummaryList> = flow {
         val res = pokemonApiService.getPokemonSummaryList(offset, limit)
         emit(res.toDomain())
-    }.catch { e ->
-        e.printStackTrace()
     }
 }

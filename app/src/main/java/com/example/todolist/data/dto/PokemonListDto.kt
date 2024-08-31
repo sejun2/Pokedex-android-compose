@@ -13,7 +13,7 @@ data class PokemonListDto(
     @SerialName("previous")
     val previous: String,
     @SerialName("results")
-    val results: List<PokemonItemDto>
+    val results: List<PokemonItemDto>?
 )
 
 fun PokemonListDto.toDomain(): PokemonSummaryList {
@@ -21,8 +21,8 @@ fun PokemonListDto.toDomain(): PokemonSummaryList {
         next = this.next,
         count = this.count,
         previous = this.previous,
-        pokemonSummaryList = this.results.map {
+        pokemonSummaryList = this.results?.map {
             it.toDomain()
-        }
+        } ?: emptyList()
     )
 }
