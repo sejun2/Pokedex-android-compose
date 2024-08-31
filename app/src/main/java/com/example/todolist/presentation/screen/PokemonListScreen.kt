@@ -1,6 +1,5 @@
-package com.example.todolist.presentation.viewmodel.screen
+package com.example.todolist.presentation.screen
 
-import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

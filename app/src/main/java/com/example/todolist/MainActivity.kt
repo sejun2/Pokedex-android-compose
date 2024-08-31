@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
-import com.example.todolist.presentation.viewmodel.screen.PokemonListScreen
+import com.example.todolist.presentation.screen.PokemonListScreen
 import com.example.todolist.ui.theme.TodolistTheme
 import dagger.hilt.android.AndroidEntryPoint
 

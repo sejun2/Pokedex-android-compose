@@ -1,4 +1,4 @@
-package com.example.todolist.presentation.viewmodel.screen
+package com.example.todolist.presentation.screen
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
