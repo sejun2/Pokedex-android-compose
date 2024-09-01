@@ -3,6 +3,7 @@ package com.example.pokemons.presentation.screen
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.pokemons.core.di.AppModule
@@ -42,6 +43,33 @@ class PokemonListScreenTest {
     fun setUp() {
         hiltRule.inject()
         viewModel = mockk(relaxed = true)
+    }
+
+
+    @Test
+    fun `PokemonSummaryListViewModel 의 uiState 가 Loading 인 경우, CircularProgressIndicator compose 가 표시된다`() {
+        every { viewModel.uiState } returns MutableStateFlow(PokemonListUiState.Loading)
+
+        // When
+        composeTestRule.setContent {
+            PokemonListView(viewModel)
+        }
+
+        // Then
+        composeTestRule.onNodeWithTag("tag_circular_progress_indicator")
+    }
+
+    @Test
+    fun `PokemonSummaryListViewModel 의 uiState 가 Error 인 경우,  Error message 문자열 Text compose 가 표시된다`() {
+        every { viewModel.uiState } returns MutableStateFlow(PokemonListUiState.Error(message = "This is sample error"))
+
+        // When
+        composeTestRule.setContent {
+            PokemonListView(viewModel)
+        }
+
+        // Then
+        composeTestRule.onNodeWithText("Error: This is sample Error")
     }
 
     @Test
