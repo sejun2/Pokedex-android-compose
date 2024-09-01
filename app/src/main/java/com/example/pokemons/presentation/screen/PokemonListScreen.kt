@@ -56,9 +56,9 @@ import com.example.pokemons.ui.theme.Primary
 import com.example.pokemons.ui.theme.PokemonTheme
 
 @Composable
-fun PokemonListScreen() {
+fun PokemonListScreen(viewModel: PokemonSummaryListViewModel = hiltViewModel()) {
     PokemonTheme {
-        PokemonListView()
+        PokemonListView(viewModel)
     }
 }
 
@@ -190,14 +190,16 @@ fun PokemonListView(pokemonSummaryListViewModel: PokemonSummaryListViewModel = h
         ) {
             when (val state = uiState) {
                 is PokemonListUiState.Loading -> CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center).testTag("tag_circular_progress_indicator")
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .testTag("tag_circular_progress_indicator")
                 )
 
                 is PokemonListUiState.Error -> Text(
                     "Error: ${state}",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center),
-                    )
+                )
 
                 is PokemonListUiState.Success -> {
                     PokemonList(
