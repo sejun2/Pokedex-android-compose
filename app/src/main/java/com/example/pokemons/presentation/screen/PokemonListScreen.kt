@@ -140,7 +140,7 @@ fun PokemonListHeader() {
                 .size(28.dp)
                 .padding(end = 6.dp),
             painter = painterResource(id = R.drawable.ic_pokedex_logo),
-            contentDescription = "logo icon",
+            contentDescription = "logo_icon",
         )
         Text(
             text = "Pokédex",
