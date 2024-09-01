@@ -51,6 +51,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
 }
 
 dependencies {
@@ -63,7 +69,14 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -86,6 +99,32 @@ dependencies {
     // coil
     implementation(libs.coil)
     implementation(libs.coil.compose)
+
+
+    // Test rules and transitive dependencies:
+    androidTestImplementation(libs.ui.test.junit4)
+    // Needed for createComposeRule(), but not for createAndroidComposeRule<YourActivity>():
+    debugImplementation(libs.ui.test.manifest)
+    testImplementation(libs.robolectric) //Robolectric
+    testImplementation(libs.ui.test.junit4) // compose test
+
+    // For Robolectric tests.
+    testImplementation(libs.google.hilt.android.testing)
+    // ...with Kotlin.
+    kaptTest(libs.com.google.dagger.hilt.android.compiler.v244)
+    // ...with Java.
+    testAnnotationProcessor(libs.com.google.dagger.hilt.android.compiler.v244)
+
+    // For instrumented tests.
+    androidTestImplementation(libs.google.hilt.android.testing)
+    // ...with Kotlin.
+    kaptAndroidTest(libs.com.google.dagger.hilt.android.compiler.v244)
+    // ...with Java.
+    androidTestAnnotationProcessor(libs.com.google.dagger.hilt.android.compiler.v244)
+    // MockK
+    testImplementation(libs.mockk)
+    // SLF4J Android implementation
+    testImplementation(libs.slf4j.android)
 }
 
 // Allow references to generated code
