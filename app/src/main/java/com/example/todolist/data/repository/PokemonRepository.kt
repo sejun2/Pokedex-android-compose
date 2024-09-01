@@ -14,4 +14,9 @@ class PokemonRepository @Inject constructor(private val pokemonApiService: Pokem
         val res = pokemonApiService.getPokemonSummaryList(offset, limit)
         emit(res.toDomain())
     }
+
+    override suspend fun getPokemonDetail() {
+        TODO("Not yet implemented")
+    }
+
 }

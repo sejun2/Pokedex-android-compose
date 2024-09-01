@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
-import com.example.todolist.presentation.screen.PokemonListScreen
-import com.example.todolist.ui.theme.TodolistTheme
+import com.example.todolist.presentation.screen.PokemonDetailScreen
+import com.example.todolist.ui.theme.PokemonTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -15,9 +15,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TodolistTheme {
+            PokemonTheme {
                 Column {
-                    PokemonListScreen()
+//                    PokemonListScreen()
+                    PokemonDetailScreen()
                 }
             }
         }

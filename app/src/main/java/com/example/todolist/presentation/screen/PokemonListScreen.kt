@@ -51,11 +51,11 @@ import com.example.todolist.domain.model.PokemonSummary
 import com.example.todolist.presentation.viewmodel.PokemonListUiState
 import com.example.todolist.presentation.viewmodel.PokemonSummaryListViewModel
 import com.example.todolist.ui.theme.Primary
-import com.example.todolist.ui.theme.TodolistTheme
+import com.example.todolist.ui.theme.PokemonTheme
 
 @Composable
 fun PokemonListScreen() {
-    TodolistTheme {
+    PokemonTheme {
         PokemonListView()
     }
 }

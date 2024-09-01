@@ -12,10 +12,15 @@ val Pink40 = Color(0xFF7D5260)
 
 val Primary = Color(0xffDC0A2D)
 
+// pokemon type color
 val Bug = Color(0xffA7B723)
 val Dark = Color(0xff75574C)
 val Dragon = Color(0xff7037FF)
 val Electric = Color(0xffF9CF30)
 val Fairy = Color(0xffE69EAC)
 val Fighting = Color(0xffC12239)
+val Fire = Color(0xffF57D31)
+val Flying = Color(0xffA891EC)
+val Ghost = Color(0xff70559B)
+val Normal = Color(0xffAAA67F)
 
