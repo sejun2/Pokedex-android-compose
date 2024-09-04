@@ -1,5 +1,6 @@
 package com.example.pokemons.presentation.screen
 
+import android.provider.ContactsContract.Directory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.disk.DiskCache
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonSummary
 import com.example.pokemons.presentation.viewmodel.PokemonListUiState
@@ -67,6 +69,13 @@ fun PokemonListScreen(
 
 @Composable
 fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
+    val localContext = LocalContext.current
+    val imageLoader = ImageLoader.Builder(localContext).diskCache {
+        DiskCache.Builder().directory(
+            localContext.filesDir
+        ).build()
+    }.build()
+
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -100,7 +109,7 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
                 AsyncImage(
                     model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.index}.png",
                     contentDescription = "Pokemon image",
-                    imageLoader = ImageLoader(LocalContext.current),
+                    imageLoader = imageLoader,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .width(120.dp)
