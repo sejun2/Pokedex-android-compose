@@ -202,13 +202,13 @@ fun PokemonListView(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 6.dp)
+                .padding(horizontal = 6.dp, vertical = 4.dp)
                 .background(
                     color = Color.White, shape = RoundedCornerShape(
-                        topStart = 12.dp, topEnd = 12.dp
-                    )
+                        12.dp
+                    ),
                 )
-                .clip(shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                .clip(shape = RoundedCornerShape(12.dp))
         ) {
             when (val state = uiState) {
                 is PokemonListUiState.Loading -> CircularProgressIndicator(
@@ -275,4 +275,10 @@ fun PokemonList(
 @Composable
 fun PreviewPokemonCard() {
     PokemonCard(pokemon = PokemonSummary("TestName", "TestUrl", 1)) {}
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewPokemonListScreen(){
+    PokemonListView {  }
 }
