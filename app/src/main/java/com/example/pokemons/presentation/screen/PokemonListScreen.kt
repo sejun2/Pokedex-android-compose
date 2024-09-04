@@ -1,6 +1,5 @@
 package com.example.pokemons.presentation.screen
 
-import android.provider.ContactsContract.Directory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +24,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,7 +63,11 @@ fun PokemonListScreen(
     navigateToPokemonDetail: (Int) -> Unit
 ) {
     PokemonTheme {
-        PokemonListView(viewModel, navigateToPokemonDetail)
+        Scaffold { innerInsets ->
+            Box(Modifier.padding(innerInsets)) {
+                PokemonListView(viewModel, navigateToPokemonDetail)
+            }
+        }
     }
 }
 
