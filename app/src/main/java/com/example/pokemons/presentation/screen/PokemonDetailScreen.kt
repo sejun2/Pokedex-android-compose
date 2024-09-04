@@ -1,5 +1,6 @@
 package com.example.pokemons.presentation.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,8 +47,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import coil.EventListener
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.decode.DataSource
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.ErrorResult
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.pokemons.R
 import com.example.pokemons.ui.theme.PokemonTheme
 
@@ -174,10 +182,47 @@ fun BackgroundFieldView(modifier: Modifier) {
 
 @Composable
 fun PokemonImageView(modifier: Modifier = Modifier) {
+
+    val localContext = LocalContext.current
+
+    val imageLoader = remember {
+        ImageLoader.Builder(context = localContext)
+            .diskCache {
+                DiskCache.Builder().directory(
+                    directory = localContext.filesDir
+                ).build()
+            }.eventListener(
+                object : EventListener {
+                    override fun onStart(request: ImageRequest) {
+                        println("Coil: Started loading ${request.data}")
+                    }
+
+                    override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+                        println("Coil: Successfully loaded ${request.data}")
+                        when (result.dataSource) {
+                            DataSource.MEMORY -> println("Coil: Image loaded from memory cache")
+                            DataSource.DISK -> println("Coil: Image loaded from disk cache")
+                            DataSource.NETWORK -> println("Coil: Image downloaded from network")
+                            else -> println("Coil: Image loaded from unknown source")
+                        }
+                    }
+
+                    override fun onError(request: ImageRequest, result: ErrorResult) {
+                        println("Coil: Error loading ${request.data}: ${result.throwable}")
+                    }
+
+                    override fun onCancel(request: ImageRequest) {
+                        println("Coil: Cancelled loading ${request.data}")
+                    }
+                }
+            )
+            .build()
+    }
+
     AsyncImage(
         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/1.png",
         contentDescription = "image",
-        imageLoader = ImageLoader(context = LocalContext.current),
+        imageLoader = imageLoader,
         placeholder = painterResource(id = R.drawable.ic_pokedex_logo),
         alignment = Alignment.Center,
         modifier = Modifier
@@ -190,7 +235,8 @@ fun PokemonImageView(modifier: Modifier = Modifier) {
 @Composable
 fun PokemonNavigationView(modifier: Modifier) {
     Row(
-        modifier = modifier.padding(vertical = 2.dp)
+        modifier = modifier
+            .padding(vertical = 2.dp)
             .zIndex(2f),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
