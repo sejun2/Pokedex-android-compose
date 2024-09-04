@@ -50,6 +50,9 @@ class MainActivity : ComponentActivity() {
                             navBackStackEntry.arguments?.getInt("pokemonId") ?: return@composable
                         PokemonDetailScreen(
                             pokemonId = pokemonId,
+                            onNavigateUp = {
+                                navigationActions.navigateUp()
+                            }
                         )
                     }
                 }

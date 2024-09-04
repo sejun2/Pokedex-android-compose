@@ -2,6 +2,7 @@ package com.example.pokemons.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,16 +58,14 @@ import com.example.pokemons.core.navigation.NavigationActions
 import com.example.pokemons.ui.theme.PokemonTheme
 
 @Composable
-fun PokemonDetailScreen(pokemonId: Int?) {
+fun PokemonDetailScreen(pokemonId: Int?, onNavigateUp: () -> Boolean) {
     PokemonTheme {
-        Text("pokemonId: $pokemonId")
-        PokemonDetailView()
+        PokemonDetailView(onNavigateUp)
     }
 }
 
 @Composable
-fun PokemonDetailView() {
-
+fun PokemonDetailView(onNavigateUp: () -> Boolean) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
@@ -120,25 +120,33 @@ fun PokemonDetailView() {
                         }, navHeight = navHeight.value
                 )
             }
-            Header()
+            Header(onNavigateUp = onNavigateUp)
         }
     }
 }
 
 @Composable
-fun Header(modifier: Modifier = Modifier) {
+fun Header(modifier: Modifier = Modifier, onNavigateUp: () -> Boolean) {
     Row(
         modifier = Modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            tint = White,
-            contentDescription = "back_button",
+        IconButton(
             modifier = Modifier
-                .padding(12.dp)
+                .clickable {
+                    onNavigateUp()
+                },
+            onClick = { onNavigateUp() }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                tint = White,
+                contentDescription = "back_button",
+                modifier = Modifier
+                    .padding(12.dp)
 
-        )
+            )
+        }
         Text(
             "PokemonName", style = TextStyle(
                 color = White,
@@ -341,5 +349,7 @@ fun PokemonDescriptionView() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPokemonDetailView() {
-    PokemonDetailView()
+    PokemonDetailView(onNavigateUp = {
+        true
+    })
 }
