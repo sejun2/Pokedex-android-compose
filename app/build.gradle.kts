@@ -82,6 +82,8 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+
+    // compose & hilt navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -122,6 +124,8 @@ dependencies {
     testImplementation(libs.mockk)
     // SLF4J Android implementation
     testImplementation(libs.slf4j.android)
+    // compose navigation test
+    androidTestImplementation(libs.navigation.testing)
 }
 
 // Allow references to generated code

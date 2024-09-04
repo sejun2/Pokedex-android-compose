@@ -52,11 +52,13 @@ import coil.request.ErrorResult
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.example.pokemons.R
+import com.example.pokemons.core.navigation.NavigationActions
 import com.example.pokemons.ui.theme.PokemonTheme
 
 @Composable
-fun PokemonDetailScreen() {
+fun PokemonDetailScreen(pokemonId: Int?) {
     PokemonTheme {
+        Text("pokemonId: $pokemonId")
         PokemonDetailView()
     }
 }
@@ -65,7 +67,7 @@ fun PokemonDetailScreen() {
 fun PokemonDetailView() {
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
         Box(
             modifier = Modifier

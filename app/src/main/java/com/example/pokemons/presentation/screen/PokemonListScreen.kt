@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,13 +52,16 @@ import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonSummary
 import com.example.pokemons.presentation.viewmodel.PokemonListUiState
 import com.example.pokemons.presentation.viewmodel.PokemonSummaryListViewModel
-import com.example.pokemons.ui.theme.Primary
 import com.example.pokemons.ui.theme.PokemonTheme
+import com.example.pokemons.ui.theme.Primary
 
 @Composable
-fun PokemonListScreen(viewModel: PokemonSummaryListViewModel = hiltViewModel()) {
+fun PokemonListScreen(
+    viewModel: PokemonSummaryListViewModel = hiltViewModel(),
+    navigateToPokemonDetail: (Int) -> Unit
+) {
     PokemonTheme {
-        PokemonListView(viewModel)
+        PokemonListView(viewModel, navigateToPokemonDetail)
     }
 }
 
@@ -166,7 +168,10 @@ fun PokedexSearchBar() {
 }
 
 @Composable
-fun PokemonListView(pokemonSummaryListViewModel: PokemonSummaryListViewModel = hiltViewModel()) {
+fun PokemonListView(
+    pokemonSummaryListViewModel: PokemonSummaryListViewModel = hiltViewModel(),
+    navigateToPokemonDetail: (Int) -> Unit
+) {
     val uiState by pokemonSummaryListViewModel.uiState.collectAsState()
     val lazyGridState = rememberLazyGridState()
 
@@ -209,7 +214,8 @@ fun PokemonListView(pokemonSummaryListViewModel: PokemonSummaryListViewModel = h
                     PokemonList(
                         pokemonList = state.pokemonList,
                         lazyGridState = lazyGridState,
-                        onLoadMore = { pokemonSummaryListViewModel.loadMore() }
+                        onLoadMore = { pokemonSummaryListViewModel.loadMore() },
+                        onItemClick = navigateToPokemonDetail
                     )
                 }
             }
@@ -221,7 +227,8 @@ fun PokemonListView(pokemonSummaryListViewModel: PokemonSummaryListViewModel = h
 fun PokemonList(
     pokemonList: List<PokemonSummary>,
     lazyGridState: LazyGridState,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
         columns = Fixed(
@@ -230,8 +237,8 @@ fun PokemonList(
         state = lazyGridState
     ) {
         items(pokemonList) { pokemon ->
-            PokemonCard(pokemon){
-                //TODO: Navigate to detail screen
+            PokemonCard(pokemon) {
+                onItemClick(pokemon.index)
             }
         }
         item {
@@ -254,5 +261,5 @@ fun PokemonList(
 @Preview(showBackground = true, widthDp = 130)
 @Composable
 fun PreviewPokemonCard() {
-    PokemonCard(pokemon = PokemonSummary("TestName", "TestUrl", 1))
+    PokemonCard(pokemon = PokemonSummary("TestName", "TestUrl", 1)) {}
 }
