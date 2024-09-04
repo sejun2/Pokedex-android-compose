@@ -1,7 +1,8 @@
 [versions]
-agp = "8.5.2"
+agp = "8.6.0"
 coil = "2.7.0"
 comGoogleDaggerHiltAndroidCompiler = "2.44"
+constraintlayoutCompose = "1.0.1"
 hiltAndroidCompiler = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
@@ -25,6 +26,7 @@ junitJupiter = "5.8.1"
 uiTestJunit4Android = "1.6.8"
 
 [libraries]
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

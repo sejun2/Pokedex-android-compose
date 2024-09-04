@@ -95,6 +95,8 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
 
+    // compose ui
+    implementation(libs.androidx.constraintlayout.compose)
 
     // Test rules and transitive dependencies:
     androidTestImplementation(libs.ui.test.junit4)

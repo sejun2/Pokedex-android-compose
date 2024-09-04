@@ -10,42 +10,45 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.example.pokemons.R
-import com.example.pokemons.presentation.widget.PokemonType
-import com.example.pokemons.presentation.widget.TypeChip
 import com.example.pokemons.ui.theme.PokemonTheme
 
 @Composable
@@ -57,64 +60,60 @@ fun PokemonDetailScreen() {
 
 @Composable
 fun PokemonDetailView() {
-    val scrollState = rememberScrollState()
 
     Scaffold(
+        modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
                 .background(color = Green)
-                .fillMaxSize()
         ) {
-            BackgroundFieldView()
-            Box(
-                modifier = Modifier
-                    .offset(y = 100.dp)
-                    .zIndex(1f)
+            val navHeight = remember { mutableStateOf(0.dp) }
+            val density = LocalDensity.current
+
+            ConstraintLayout(
+                modifier = Modifier.fillMaxSize()
             ) {
-                PokemonNavigationView()
-            }
-            Column(
-                Modifier
-                    .padding(start = 3.dp, end = 3.dp, bottom = 3.dp)
-                    .align(Alignment.BottomCenter)
-                    .height(550.dp)
-                    .clip(
-                        shape = RoundedCornerShape(
-                            topStart = 12.dp, topEnd = 12.dp,
-                            bottomStart = 12.dp, bottomEnd = 12.dp,
-                        )
-                    )
-                    .shadow((6).dp)
-                    .verticalScroll(scrollState)
-                    .background(color = White)
-            ) {
-                // prevent from overlap with PokemonNavigationView
-                Spacer(modifier = Modifier.height(60.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    TypeChip(
-                        PokemonType.BUG
-                    )
-                    TypeChip(
-                        PokemonType.FIRE
-                    )
-                    TypeChip(
-                        PokemonType.DRAGON
-                    )
-                }
-                Text(
-                    text = "About",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                val guideline = createGuidelineFromTop(0.3f)
+
+                val (backgroundFieldViewRef, navViewRef, contentViewRef) = createRefs()
+
+                BackgroundFieldView(Modifier.constrainAs(backgroundFieldViewRef) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(guideline)
+
+                    height = Dimension.fillToConstraints
+                })
+                PokemonNavigationView(
+                    Modifier
+                        .constrainAs(navViewRef) {
+                            bottom.linkTo(guideline)
+                            top.linkTo(guideline)
+
+                            width = Dimension.matchParent
+                        }
+                        .padding(bottom = 36.dp)
+                        .onGloballyPositioned { coordinates ->
+                            navHeight.value = with(density) {
+                                coordinates.size.height.toDp()
+                            }
+                        }
+                        .zIndex(2f)
                 )
-                PokemonPhysicsView()
-                PokemonDescriptionView()
+                ContentCardView(
+                    Modifier
+                        .constrainAs(contentViewRef) {
+                            top.linkTo(guideline)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }, navHeight = navHeight.value
+                )
             }
             Header()
         }
@@ -122,7 +121,7 @@ fun PokemonDetailView() {
 }
 
 @Composable
-fun Header() {
+fun Header(modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -155,9 +154,9 @@ fun Header() {
 }
 
 @Composable
-fun BackgroundFieldView() {
+fun BackgroundFieldView(modifier: Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(color = Green)
             .fillMaxWidth()
             .height(220.dp),
@@ -174,7 +173,7 @@ fun BackgroundFieldView() {
 }
 
 @Composable
-fun PokemonImageView() {
+fun PokemonImageView(modifier: Modifier = Modifier) {
     AsyncImage(
         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/1.png",
         contentDescription = "image",
@@ -189,10 +188,9 @@ fun PokemonImageView() {
 }
 
 @Composable
-fun PokemonNavigationView() {
+fun PokemonNavigationView(modifier: Modifier) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier.padding(vertical = 2.dp)
             .zIndex(2f),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
@@ -216,18 +214,31 @@ fun PokemonNavigationView() {
 }
 
 @Composable
-fun ContentView() {
-
+fun ContentCardView(modifier: Modifier, navHeight: Dp) {
+    Box(
+        modifier
+            .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
+            .clip(
+                shape = RoundedCornerShape(12.dp)
+            )
+            .background(color = White)
+            .padding(top = navHeight / 2)
+    ) {
+        Column {
+            PokemonPhysicsView()
+            PokemonDescriptionView()
+        }
+    }
 }
 
 @Composable
-fun PokemonPhysicsView() {
+fun PokemonPhysicsView(modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 8.dp)
+            .padding(bottom = 24.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
