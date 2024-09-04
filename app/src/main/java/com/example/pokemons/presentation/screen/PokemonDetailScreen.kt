@@ -132,10 +132,6 @@ fun Header(modifier: Modifier = Modifier, onNavigateUp: () -> Boolean) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            modifier = Modifier
-                .clickable {
-                    onNavigateUp()
-                },
             onClick = { onNavigateUp() }
         ) {
             Icon(
