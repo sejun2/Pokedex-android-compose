@@ -2,6 +2,7 @@ package com.example.pokemons.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,7 +64,7 @@ fun PokemonListScreen(viewModel: PokemonSummaryListViewModel = hiltViewModel()) 
 }
 
 @Composable
-fun PokemonCard(pokemon: PokemonSummary) {
+fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -75,7 +76,10 @@ fun PokemonCard(pokemon: PokemonSummary) {
                 .fillMaxSize()
                 .shadow(4.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.White),
+                .background(Color.White)
+                .clickable {
+                    onClick()
+                },
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
 
@@ -226,7 +230,9 @@ fun PokemonList(
         state = lazyGridState
     ) {
         items(pokemonList) { pokemon ->
-            PokemonCard(pokemon)
+            PokemonCard(pokemon){
+                //TODO: Navigate to detail screen
+            }
         }
         item {
             LaunchedEffect(Unit) {
