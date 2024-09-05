@@ -1,8 +1,8 @@
 package com.example.pokemons.presentation.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.EventListener
 import coil.ImageLoader
 import coil.compose.AsyncImage
@@ -54,18 +58,31 @@ import coil.request.ErrorResult
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.example.pokemons.R
-import com.example.pokemons.core.navigation.NavigationActions
+import com.example.pokemons.domain.model.PokemonDetail
+import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
+import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
+import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.ui.theme.PokemonTheme
 
 @Composable
-fun PokemonDetailScreen(pokemonId: Int?, onNavigateUp: () -> Boolean) {
+fun PokemonDetailScreen(pokemonId: Int, onNavigateUp: () -> Boolean) {
     PokemonTheme {
-        PokemonDetailView(onNavigateUp)
+        PokemonDetailView(onNavigateUp, pokemonId)
     }
 }
 
 @Composable
-fun PokemonDetailView(onNavigateUp: () -> Boolean) {
+fun PokemonDetailView(
+    onNavigateUp: () -> Boolean,
+    pokemonId: Int,
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel<PokemonDetailViewModel>()
+) {
+    LaunchedEffect(Unit) {
+        pokemonDetailViewModel.fetchPokemonDetail(pokemonIndex = pokemonId)
+    }
+
+    val uiState = pokemonDetailViewModel.uiState.collectAsState()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
@@ -73,60 +90,78 @@ fun PokemonDetailView(onNavigateUp: () -> Boolean) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(color = Green)
         ) {
             val navHeight = remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
-            ConstraintLayout(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val guideline = createGuidelineFromTop(0.3f)
+            when (val state = uiState.value) {
+                is PokemonDetailUiState.Success ->
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = state.data.types[0].color)
+                    ) {
+                        val guideline = createGuidelineFromTop(0.3f)
 
-                val (backgroundFieldViewRef, navViewRef, contentViewRef) = createRefs()
+                        val (backgroundFieldViewRef, navViewRef, contentViewRef) = createRefs()
 
-                BackgroundFieldView(Modifier.constrainAs(backgroundFieldViewRef) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(guideline)
-
-                    height = Dimension.fillToConstraints
-                })
-                PokemonNavigationView(
-                    Modifier
-                        .constrainAs(navViewRef) {
+                        BackgroundFieldView(Modifier.constrainAs(backgroundFieldViewRef) {
+                            top.linkTo(parent.top)
                             bottom.linkTo(guideline)
-                            top.linkTo(guideline)
 
-                            width = Dimension.matchParent
-                        }
-                        .padding(bottom = 36.dp)
-                        .onGloballyPositioned { coordinates ->
-                            navHeight.value = with(density) {
-                                coordinates.size.height.toDp()
-                            }
-                        }
-                        .zIndex(2f)
-                )
-                ContentCardView(
-                    Modifier
-                        .constrainAs(contentViewRef) {
-                            top.linkTo(guideline)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-
-                            width = Dimension.fillToConstraints
                             height = Dimension.fillToConstraints
-                        }, navHeight = navHeight.value
-                )
+                        }, state.data.types[0])
+
+                        PokemonNavigationView(
+                            Modifier
+                                .constrainAs(navViewRef) {
+                                    bottom.linkTo(guideline)
+                                    top.linkTo(guideline)
+
+                                    width = Dimension.matchParent
+                                }
+                                .padding(bottom = 36.dp)
+                                .onGloballyPositioned { coordinates ->
+                                    navHeight.value = with(density) {
+                                        coordinates.size.height.toDp()
+                                    }
+                                }
+                                .zIndex(2f),
+                            state.data.index
+                        )
+                        ContentCardView(
+                            Modifier
+                                .constrainAs(contentViewRef) {
+                                    top.linkTo(guideline)
+                                    bottom.linkTo(parent.bottom)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
+
+                                    width = Dimension.fillToConstraints
+                                    height = Dimension.fillToConstraints
+                                }, navHeight = navHeight.value,
+                            pokemonDetail = state.data
+                        )
+                    }
+
+                is PokemonDetailUiState.Loading -> CircularProgressIndicator()
+                is PokemonDetailUiState.Initial -> CircularProgressIndicator()
+                is PokemonDetailUiState.Error ->
+                    Text(state.msg)
             }
-            Header(onNavigateUp = onNavigateUp)
+
+            Header(onNavigateUp = onNavigateUp, pokemonDetailViewModel = pokemonDetailViewModel)
         }
     }
 }
 
 @Composable
-fun Header(modifier: Modifier = Modifier, onNavigateUp: () -> Boolean) {
+fun Header(
+    modifier: Modifier = Modifier,
+    onNavigateUp: () -> Boolean,
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+) {
+    val uiState = pokemonDetailViewModel.uiState.collectAsState()
     Row(
         modifier = Modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -143,30 +178,37 @@ fun Header(modifier: Modifier = Modifier, onNavigateUp: () -> Boolean) {
 
             )
         }
-        Text(
-            "PokemonName", style = TextStyle(
-                color = White,
-                fontWeight = FontWeight.W900,
-                fontSize = 18.sp,
-            )
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            "#001", style = TextStyle(
-                color = White,
-                fontWeight = FontWeight.W900,
-                fontSize = 12.sp
-            )
-        )
+        when (val state = uiState.value) {
+            is PokemonDetailUiState.Success -> {
+                Text(
+                    state.data.name, style = TextStyle(
+                        color = White,
+                        fontWeight = FontWeight.W900,
+                        fontSize = 18.sp,
+                    )
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    "#${state.data.index}", style = TextStyle(
+                        color = White,
+                        fontWeight = FontWeight.W900,
+                        fontSize = 12.sp
+                    )
+                )
+            }
+
+            else -> {
+            }
+        }
     }
 
 }
 
 @Composable
-fun BackgroundFieldView(modifier: Modifier) {
+fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
     Box(
         modifier = modifier
-            .background(color = Green)
+            .background(color = type.color)
             .fillMaxWidth()
             .height(220.dp),
         contentAlignment = Alignment.CenterEnd,
@@ -182,8 +224,7 @@ fun BackgroundFieldView(modifier: Modifier) {
 }
 
 @Composable
-fun PokemonImageView(modifier: Modifier = Modifier) {
-
+fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
     val localContext = LocalContext.current
 
     val imageLoader = remember {
@@ -192,36 +233,12 @@ fun PokemonImageView(modifier: Modifier = Modifier) {
                 DiskCache.Builder().directory(
                     directory = localContext.filesDir
                 ).build()
-            }.eventListener(
-                object : EventListener {
-                    override fun onStart(request: ImageRequest) {
-                        println("Coil: Started loading ${request.data}")
-                    }
-
-                    override fun onSuccess(request: ImageRequest, result: SuccessResult) {
-                        println("Coil: Successfully loaded ${request.data}")
-                        when (result.dataSource) {
-                            DataSource.MEMORY -> println("Coil: Image loaded from memory cache")
-                            DataSource.DISK -> println("Coil: Image loaded from disk cache")
-                            DataSource.NETWORK -> println("Coil: Image downloaded from network")
-                            else -> println("Coil: Image loaded from unknown source")
-                        }
-                    }
-
-                    override fun onError(request: ImageRequest, result: ErrorResult) {
-                        println("Coil: Error loading ${request.data}: ${result.throwable}")
-                    }
-
-                    override fun onCancel(request: ImageRequest) {
-                        println("Coil: Cancelled loading ${request.data}")
-                    }
-                }
-            )
+            }
             .build()
     }
 
     AsyncImage(
-        model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/1.png",
+        model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/$pokemonId.png",
         contentDescription = "image",
         imageLoader = imageLoader,
         placeholder = painterResource(id = R.drawable.ic_pokedex_logo),
@@ -234,7 +251,7 @@ fun PokemonImageView(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PokemonNavigationView(modifier: Modifier) {
+fun PokemonNavigationView(modifier: Modifier, pokemonId: Int) {
     Row(
         modifier = modifier
             .padding(vertical = 2.dp)
@@ -249,7 +266,7 @@ fun PokemonNavigationView(modifier: Modifier) {
             modifier = Modifier
                 .width(50.dp)
         )
-        PokemonImageView()
+        PokemonImageView(pokemonId = pokemonId)
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "right_arrow",
@@ -261,7 +278,7 @@ fun PokemonNavigationView(modifier: Modifier) {
 }
 
 @Composable
-fun ContentCardView(modifier: Modifier, navHeight: Dp) {
+fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDetail) {
     Box(
         modifier
             .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
@@ -345,7 +362,4 @@ fun PokemonDescriptionView() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPokemonDetailView() {
-    PokemonDetailView(onNavigateUp = {
-        true
-    })
 }

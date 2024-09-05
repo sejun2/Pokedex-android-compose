@@ -17,6 +17,12 @@ fun PokemonItemDto.toDomain(): PokemonSummary {
     return PokemonSummary(
         name = this.name,
         url = this.url,
-        index = this.index
+        index = getIndexFromUrl(this.url) ?: 1
     )
+}
+
+private fun getIndexFromUrl(url: String): Int? {
+    val regex = "/pokemon/(\\d+)/".toRegex()
+
+    return regex.find(url)?.groupValues?.get(1)?.toInt()
 }

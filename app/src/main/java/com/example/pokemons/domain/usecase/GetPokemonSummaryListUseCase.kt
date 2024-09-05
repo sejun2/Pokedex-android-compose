@@ -8,14 +8,10 @@ import javax.inject.Inject
 
 class GetPokemonSummaryListUseCase @Inject constructor(private val pokemonRepository: IPokemonRepository) {
     suspend fun execute(offset: Int, limit: Int): Flow<PokemonSummaryList> {
-        var tmpOffset = offset
-
         return pokemonRepository.getPokemonList(offset, limit)
             .map { originalList ->
                 PokemonSummaryList(
-                    pokemonSummaryList = originalList.pokemonSummaryList.map { summary ->
-                        summary.copy(index = (tmpOffset++))
-                    },
+                    pokemonSummaryList = originalList.pokemonSummaryList,
                     count = originalList.count,
                     next = originalList.next,
                     previous = originalList.previous

@@ -62,7 +62,11 @@ data class Stat(
 fun PokemonDetailDto.toDomain(): PokemonDetail {
     val pokemonType: List<PokemonType> =
         this.types.map { it ->
-            PokemonType.valueOf(it.type.name.uppercase())
+            try {
+                PokemonType.valueOf(it.type.name.uppercase())
+            } catch (e: Exception) {
+                PokemonType.NORMAL
+            }
         }
 
     val stats: List<Stats> =

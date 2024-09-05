@@ -20,13 +20,12 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
     private val _uiState = MutableStateFlow<PokemonListUiState>(PokemonListUiState.Loading)
     val uiState: StateFlow<PokemonListUiState> = _uiState.asStateFlow()
 
-    private var currentOffset = 1
+    private var currentOffset = 0
     private val limit = 30
     private var isLoading = false
     private val _pokemonList = mutableListOf<PokemonSummary>()
 
     fun fetchPokemonList() {
-        Log.d("ViewModel", "fetch $isLoading")
         if (isLoading) return
 
         viewModelScope.launch {
@@ -44,7 +43,7 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
                     isLoading = false
                 }
                 .collect { pokemonList ->
-                    Log.d("poke", "$limit $currentOffset")
+                    Log.d("poke::", "$pokemonList")
 
                     _pokemonList.addAll(pokemonList.pokemonSummaryList)
                     _uiState.value = PokemonListUiState.Success(_pokemonList.toList())

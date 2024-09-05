@@ -23,4 +23,6 @@ val Fire = Color(0xffF57D31)
 val Flying = Color(0xffA891EC)
 val Ghost = Color(0xff70559B)
 val Normal = Color(0xffAAA67F)
+val Grass = Color.Green
+val Water = Color.Blue
 

@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import com.example.pokemons.ui.theme.Bug
 import com.example.pokemons.ui.theme.Dark
 import com.example.pokemons.ui.theme.Dragon
+import com.example.pokemons.ui.theme.Grass
+import com.example.pokemons.ui.theme.Purple40
+import com.example.pokemons.ui.theme.Water
 
 enum class PokemonType(val color: Color) {
     BUG(
@@ -49,6 +52,15 @@ enum class PokemonType(val color: Color) {
     NORMAL(
         color = com.example.pokemons.ui.theme.Normal
     ),
+    GRASS(
+        color = Grass
+    ),
+    WATER(
+        color = Water
+    ),
+    POISON(
+        color = Purple40
+    )
 }
 
 @Composable
