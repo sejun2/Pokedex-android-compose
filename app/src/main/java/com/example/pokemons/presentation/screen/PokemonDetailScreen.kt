@@ -63,6 +63,7 @@ import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
 import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
 import com.example.pokemons.presentation.widget.PokemonType
+import com.example.pokemons.presentation.widget.TypeChip
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.ui.theme.Typography
 
@@ -214,6 +215,15 @@ fun Header(
 }
 
 @Composable
+fun PokemonTypeView(modifier: Modifier = Modifier, types: List<PokemonType>) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        types.map {
+            TypeChip(it)
+        }
+    }
+}
+
+@Composable
 fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
     Box(
         modifier = modifier
@@ -298,6 +308,7 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             .padding(top = navHeight / 2)
     ) {
         Column {
+            PokemonTypeView(types = pokemonDetail.types)
             PokemonPhysicsView(pokemonDetail = pokemonDetail)
             PokemonDescriptionView()
         }
