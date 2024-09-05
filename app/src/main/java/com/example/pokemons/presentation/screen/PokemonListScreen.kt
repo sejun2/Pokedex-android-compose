@@ -29,6 +29,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -76,7 +77,7 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
     val localContext = LocalContext.current
     val imageLoader = ImageLoader.Builder(localContext).diskCache {
         DiskCache.Builder().directory(
-            localContext.filesDir
+            localContext.cacheDir
         ).build()
     }.build()
 
@@ -188,10 +189,6 @@ fun PokemonListView(
     val uiState by pokemonSummaryListViewModel.uiState.collectAsState()
     val lazyGridState = rememberLazyGridState()
 
-    LaunchedEffect(Unit) {
-        pokemonSummaryListViewModel.fetchPokemonList()
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -204,7 +201,8 @@ fun PokemonListView(
                 .fillMaxSize()
                 .padding(horizontal = 6.dp, vertical = 4.dp)
                 .background(
-                    color = Color.White, shape = RoundedCornerShape(
+                    color = Color.White,
+                    shape = RoundedCornerShape(
                         12.dp
                     ),
                 )
@@ -279,6 +277,6 @@ fun PreviewPokemonCard() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewPokemonListScreen(){
-    PokemonListView {  }
+fun PreviewPokemonListScreen() {
+    PokemonListView { }
 }

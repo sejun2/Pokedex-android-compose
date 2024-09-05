@@ -25,6 +25,10 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
     private var isLoading = false
     private val _pokemonList = mutableListOf<PokemonSummary>()
 
+    init {
+        fetchPokemonList()
+    }
+
     fun fetchPokemonList() {
         if (isLoading) return
 
