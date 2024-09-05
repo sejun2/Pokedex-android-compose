@@ -5,7 +5,7 @@ import com.example.pokemons.presentation.widget.PokemonType
 data class PokemonDetail(
     val name: String,
     val index: Int,
-    val image: String,
+    val image: String?,
     val types: List<PokemonType>,
     val weight: Double,
     val height: Double,
@@ -16,5 +16,7 @@ data class PokemonDetail(
 
 data class Stats(
     val name: String,
-    val value: Int
+    val value: Int,
+    val effort: Int,
+    val url: String,
 )

@@ -52,7 +52,7 @@ class PokemonListScreenTest {
 
         // When
         composeTestRule.setContent {
-            PokemonListScreen(viewModel)
+            PokemonListScreen(viewModel) {}
         }
 
         // Then
@@ -65,7 +65,7 @@ class PokemonListScreenTest {
 
         // When
         composeTestRule.setContent {
-            PokemonListScreen(viewModel)
+            PokemonListScreen(viewModel) {}
         }
 
         // Then
@@ -84,7 +84,7 @@ class PokemonListScreenTest {
 
         // When
         composeTestRule.setContent {
-            PokemonListScreen(viewModel)
+            PokemonListScreen(viewModel) {}
         }
 
         // Then
@@ -105,7 +105,7 @@ class PokemonListScreenTest {
 
         // When
         composeTestRule.setContent {
-            PokemonListScreen(viewModel)
+            PokemonListScreen(viewModel) {}
         }
 
         // Then

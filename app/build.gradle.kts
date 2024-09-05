@@ -126,6 +126,7 @@ dependencies {
     testImplementation(libs.slf4j.android)
     // compose navigation test
     androidTestImplementation(libs.navigation.testing)
+    testImplementation(libs.kotlin.test.junit)
 }
 
 // Allow references to generated code
