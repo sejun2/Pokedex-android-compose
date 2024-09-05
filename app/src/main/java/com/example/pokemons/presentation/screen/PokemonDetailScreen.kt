@@ -144,8 +144,15 @@ fun PokemonDetailView(
                         )
                     }
 
-                is PokemonDetailUiState.Loading -> CircularProgressIndicator()
-                is PokemonDetailUiState.Initial -> CircularProgressIndicator()
+                is PokemonDetailUiState.Loading ->
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+
+                is PokemonDetailUiState.Initial -> CircularProgressIndicator(
+                    modifier = Modifier.align(
+                        Alignment.Center
+                    )
+                )
+
                 is PokemonDetailUiState.Error ->
                     Text(state.msg)
             }
