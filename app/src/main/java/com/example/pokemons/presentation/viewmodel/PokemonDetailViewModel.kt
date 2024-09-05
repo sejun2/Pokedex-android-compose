@@ -29,7 +29,8 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
                     _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
                 }.collect { data ->
                     _uiState.value = PokemonDetailUiState.Success(
-                        data = data
+                        data = data,
+                        selectedPokemonIndex = 999
                     )
                 }
         }
@@ -44,10 +45,16 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
                     _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
                 }.collect { data ->
                     _uiState.value = PokemonDetailUiState.Success(
-                        data = data
+                        data = data,
+                        selectedPokemonIndex = 999
                     )
                 }
         }
+    }
+
+    override fun onCleared() {
+        println("PokemonDetailViewmodel cleared")
+        super.onCleared()
     }
 }
 
@@ -55,5 +62,6 @@ sealed class PokemonDetailUiState {
     data object Initial : PokemonDetailUiState()
     data object Loading : PokemonDetailUiState()
     data class Error(val msg: String) : PokemonDetailUiState()
-    data class Success(val data: PokemonDetail) : PokemonDetailUiState()
+    data class Success(val data: PokemonDetail, val selectedPokemonIndex: Int) :
+        PokemonDetailUiState()
 }

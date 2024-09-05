@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -63,6 +64,7 @@ import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
 import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
 import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.ui.theme.PokemonTheme
+import com.example.pokemons.ui.theme.Typography
 
 @Composable
 fun PokemonDetailScreen(pokemonId: Int, onNavigateUp: () -> Boolean) {
@@ -296,14 +298,14 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             .padding(top = navHeight / 2)
     ) {
         Column {
-            PokemonPhysicsView()
+            PokemonPhysicsView(pokemonDetail = pokemonDetail)
             PokemonDescriptionView()
         }
     }
 }
 
 @Composable
-fun PokemonPhysicsView(modifier: Modifier = Modifier) {
+fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -312,17 +314,21 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier) {
             .padding(bottom = 24.dp)
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
         ) {
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_weight),
                     contentDescription = "image_weight"
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("6.9 kg")
+                Text("${pokemonDetail.weight / 10} kg")
             }
-            Text("weight")
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Weight")
         }
         Box(
             modifier = Modifier
@@ -331,17 +337,21 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier) {
                 .background(color = Color.Gray.copy(alpha = 0.5f))
         )
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
         ) {
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_weight),
-                    contentDescription = "image_weight"
+                    painter = painterResource(id = R.drawable.ic_straighten),
+                    contentDescription = "image_height"
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("6.9 kg")
+                Text("${(pokemonDetail.height / 10)} m")
             }
-            Text("weight")
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Height")
         }
         Box(
             modifier = Modifier
@@ -350,10 +360,12 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier) {
                 .background(color = Color.Gray.copy(alpha = 0.5f))
         )
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
         ) {
-            Text("6.9 kg")
-            Text("weight")
+            Text("${pokemonDetail.moves}")
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Moves")
         }
     }
 }
