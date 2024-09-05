@@ -21,28 +21,29 @@ class PokemonRepository @Inject constructor(private val pokemonApiService: Pokem
     }
 
     override suspend fun getPokemonDetail(pokemonIndex: Int): Flow<PokemonDetail> = flow {
-        val cachedDetail = getPokemonDetailFromCacheOrNull(pokemonIndex)
+        val cachedDetail = getPokemonDetailFromCacheOrNull(pokemonIndex = pokemonIndex)
 
         if (cachedDetail != null) {
             emit(cachedDetail)
         } else {
             val res = pokemonApiService.getPokemonDetail(pokemonIndex)
             val pokemonDetail = res.toDomain()
-            setPokemonDetailForCache(pokemonDetail)
-            emit(pokemonDetail)
+            emit(setPokemonDetailForCache(pokemonDetail))
         }
-    }.flowOn(Dispatchers.IO)
+    }
+
 
     override suspend fun getPokemonDetail(pokemonName: String): Flow<PokemonDetail> = flow {
         val res = pokemonApiService.getPokemonDetail(pokemonName)
         emit(res.toDomain())
     }.flowOn(Dispatchers.IO)
 
-    private fun getPokemonDetailFromCacheOrNull(pokemonIndex: Int): PokemonDetail? =
+    private fun getPokemonDetailFromCacheOrNull(pokemonIndex: Int) =
         pokemonDetailCache[pokemonIndex]
 
 
-    private fun setPokemonDetailForCache(pokemonDetail: PokemonDetail) {
+    private fun setPokemonDetailForCache(pokemonDetail: PokemonDetail): PokemonDetail {
         pokemonDetailCache[pokemonDetail.index] = pokemonDetail
+        return pokemonDetail
     }
 }

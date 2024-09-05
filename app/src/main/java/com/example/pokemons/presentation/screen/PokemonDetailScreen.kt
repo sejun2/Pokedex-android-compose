@@ -1,6 +1,5 @@
 package com.example.pokemons.presentation.screen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,10 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -50,14 +47,9 @@ import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.EventListener
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.decode.DataSource
 import coil.disk.DiskCache
-import coil.request.ErrorResult
-import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
@@ -65,7 +57,8 @@ import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
 import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.presentation.widget.TypeChip
 import com.example.pokemons.ui.theme.PokemonTheme
-import com.example.pokemons.ui.theme.Typography
+import com.example.pokemons.util.toPokedexIndex
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun PokemonDetailScreen(pokemonId: Int, onNavigateUp: () -> Boolean) {
@@ -199,7 +192,7 @@ fun Header(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "#${state.data.index}", style = TextStyle(
+                    "#${state.data.index.toString().toPokedexIndex()}", style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
                         fontSize = 12.sp

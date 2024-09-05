@@ -57,6 +57,7 @@ import com.example.pokemons.presentation.viewmodel.PokemonListUiState
 import com.example.pokemons.presentation.viewmodel.PokemonSummaryListViewModel
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.ui.theme.Primary
+import com.example.pokemons.util.toPokedexIndex
 
 @Composable
 fun PokemonListScreen(
@@ -102,7 +103,7 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Pokemon number
                 Text(
-                    text = "#${pokemon.index}",
+                    text = "#${pokemon.index.toString().toPokedexIndex()}",
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
                     modifier = Modifier

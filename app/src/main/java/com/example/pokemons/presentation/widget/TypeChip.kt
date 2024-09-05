@@ -17,7 +17,14 @@ import androidx.compose.ui.unit.dp
 import com.example.pokemons.ui.theme.Bug
 import com.example.pokemons.ui.theme.Dark
 import com.example.pokemons.ui.theme.Dragon
+import com.example.pokemons.ui.theme.Electric
+import com.example.pokemons.ui.theme.Fairy
+import com.example.pokemons.ui.theme.Fighting
+import com.example.pokemons.ui.theme.Fire
+import com.example.pokemons.ui.theme.Flying
+import com.example.pokemons.ui.theme.Ghost
 import com.example.pokemons.ui.theme.Grass
+import com.example.pokemons.ui.theme.Normal
 import com.example.pokemons.ui.theme.Purple40
 import com.example.pokemons.ui.theme.Water
 
@@ -32,25 +39,25 @@ enum class PokemonType(val color: Color) {
         color = Dragon
     ),
     ELECTRIC(
-        color = com.example.pokemons.ui.theme.Electric
+        color = Electric
     ),
     FAIRY(
-        color = com.example.pokemons.ui.theme.Fairy
+        color = Fairy
     ),
     FIGHTING(
-        color = com.example.pokemons.ui.theme.Fighting
+        color = Fighting
     ),
     FIRE(
-        color = com.example.pokemons.ui.theme.Fire
+        color = Fire
     ),
     FLYING(
-        color = com.example.pokemons.ui.theme.Flying
+        color = Flying
     ),
     GHOST(
-        color = com.example.pokemons.ui.theme.Ghost
+        color = Ghost
     ),
     NORMAL(
-        color = com.example.pokemons.ui.theme.Normal
+        color = Normal
     ),
     GRASS(
         color = Grass
@@ -83,7 +90,7 @@ fun TypeChip(pokemonType: PokemonType) {
     }
 }
 
-fun String.capitalizeFirstKeepRest(): String {
+internal fun String.capitalizeFirstKeepRest(): String {
     return if (this.isEmpty()) {
         this
     } else {
