@@ -232,12 +232,8 @@ fun PokemonListView(
     ) {
         PokemonListHeader()
         PokedexSearchBar(searchValue) {
-            //TODO: Search action
             searchValue = it
-            println(searchValue)
-            if (uiState is PokemonListUiState.Success) {
-                (uiState as PokemonListUiState.Success).search(searchValue)
-            }
+            pokemonSummaryListViewModel.search(searchValue)
         }
 
         Box(
@@ -260,14 +256,14 @@ fun PokemonListView(
                 )
 
                 is PokemonListUiState.Error -> Text(
-                    "Error: ${state}",
+                    "Error: $state",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center),
                 )
 
                 is PokemonListUiState.Success -> {
                     PokemonList(
-                        pokemonList = state.filteredPokemonList.collectAsState().value,
+                        pokemonList = state.pokemonList,
                         lazyGridState = lazyGridState,
                         onLoadMore = { pokemonSummaryListViewModel.loadMore() },
                         onItemClick = navigateToPokemonDetail
