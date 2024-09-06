@@ -1,5 +1,12 @@
 package com.example.pokemons.presentation.screen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animation
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +32,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -249,6 +258,18 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
             .build()
     }
 
+    var completed by remember {
+        mutableStateOf<Boolean>(false)
+    }
+
+    val animWidth by animateFloatAsState(
+        targetValue = if (completed) 200f else 300f, label = "anim_val_image_width",
+        animationSpec = tween(
+            durationMillis = 350,
+            easing = FastOutSlowInEasing
+        )
+    )
+
     AsyncImage(
         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/$pokemonId.png",
         contentDescription = "image",
@@ -256,9 +277,12 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
         placeholder = painterResource(id = R.drawable.ic_pokedex_logo),
         alignment = Alignment.Center,
         modifier = Modifier
-            .width(180.dp)
-            .height(180.dp)
-            .zIndex(1f)
+            .width(animWidth.dp)
+            .height(animWidth.dp)
+            .zIndex(1f),
+        onSuccess = {
+            completed = true
+        }
     )
 }
 
