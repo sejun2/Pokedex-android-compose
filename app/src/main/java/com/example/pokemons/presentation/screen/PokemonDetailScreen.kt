@@ -2,9 +2,14 @@ package com.example.pokemons.presentation.screen
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animation
+import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
@@ -18,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
@@ -58,6 +65,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.disk.DiskCache
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonDetail
@@ -263,18 +271,26 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
     }
 
     val animWidth by animateFloatAsState(
-        targetValue = if (completed) 200f else 300f, label = "anim_val_image_width",
+        targetValue = if (completed) 200f else 350f, label = "anim_val_image_width",
         animationSpec = tween(
-            durationMillis = 350,
+            durationMillis = 500,
             easing = FastOutSlowInEasing
         )
     )
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOutBack),
+            repeatMode = RepeatMode.Restart,
+            ), label = "anim_val_image_rotate_angle"
+    )
 
-    AsyncImage(
+    SubcomposeAsyncImage(
         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/$pokemonId.png",
         contentDescription = "image",
         imageLoader = imageLoader,
-        placeholder = painterResource(id = R.drawable.ic_pokedex_logo),
         alignment = Alignment.Center,
         modifier = Modifier
             .width(animWidth.dp)
@@ -282,8 +298,18 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
             .zIndex(1f),
         onSuccess = {
             completed = true
+        },
+        loading = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_pokedex_logo),
+                contentDescription = "Loading",
+                modifier = Modifier
+                    .size(200.dp)
+                    .rotate(angle)
+            )
         }
     )
+
 }
 
 @Composable
