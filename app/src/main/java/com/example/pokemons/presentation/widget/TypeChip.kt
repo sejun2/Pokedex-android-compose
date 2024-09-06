@@ -32,6 +32,7 @@ import com.example.pokemons.ui.theme.Psychic
 import com.example.pokemons.ui.theme.Rock
 import com.example.pokemons.ui.theme.Steel
 import com.example.pokemons.ui.theme.Water
+import com.example.pokemons.util.capitalizeFirstKeepRest
 
 enum class PokemonType(val color: Color) {
     BUG(
@@ -107,13 +108,5 @@ fun TypeChip(pokemonType: PokemonType) {
                 color = White,
             ),
         )
-    }
-}
-
-internal fun String.capitalizeFirstKeepRest(): String {
-    return if (this.isEmpty()) {
-        this
-    } else {
-        this[0] + this.substring(1).lowercase()
     }
 }

@@ -13,3 +13,11 @@ fun String.toPokedexIndex(): String {
 
     return result
 }
+
+fun String.capitalizeFirstKeepRest(): String {
+    return if (this.isEmpty()) {
+        this
+    } else {
+        this[0] + this.substring(1).lowercase()
+    }
+}
