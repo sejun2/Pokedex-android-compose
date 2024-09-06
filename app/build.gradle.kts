@@ -96,6 +96,7 @@ dependencies {
     // coil
     implementation(libs.coil)
     implementation(libs.coil.compose)
+    implementation(libs.coil.kt.coil.gif)
 
     // compose ui
     implementation(libs.androidx.constraintlayout.compose)

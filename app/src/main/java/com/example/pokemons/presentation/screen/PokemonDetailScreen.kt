@@ -1,5 +1,6 @@
 package com.example.pokemons.presentation.screen
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animation
 import androidx.compose.animation.core.EaseInOutBack
@@ -55,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import coil.disk.DiskCache
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonDetail
@@ -140,7 +144,7 @@ fun PokemonDetailView(
                                     }
                                 }
                                 .zIndex(2f),
-                            state.data.index
+                            state.data
                         )
                         ContentCardView(
                             Modifier
@@ -253,7 +257,7 @@ fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
 }
 
 @Composable
-fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
+fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail) {
     val localContext = LocalContext.current
 
     val imageLoader = remember {
@@ -262,6 +266,12 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
                 DiskCache.Builder().directory(
                     directory = localContext.filesDir
                 ).build()
+            }.components{
+                if (SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
             }
             .build()
     }
@@ -284,11 +294,11 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
         animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = EaseInOutBack),
             repeatMode = RepeatMode.Restart,
-            ), label = "anim_val_image_rotate_angle"
+        ), label = "anim_val_image_rotate_angle"
     )
 
     SubcomposeAsyncImage(
-        model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/$pokemonId.png",
+        model = "https://projectpokemon.org/images/normal-sprite/${pokemonDetail.name.lowercase()}.gif",
         contentDescription = "image",
         imageLoader = imageLoader,
         alignment = Alignment.Center,
@@ -313,7 +323,7 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonId: Int) {
 }
 
 @Composable
-fun PokemonNavigationView(modifier: Modifier, pokemonId: Int) {
+fun PokemonNavigationView(modifier: Modifier, pokemon: PokemonDetail) {
     Row(
         modifier = modifier
             .padding(vertical = 2.dp)
@@ -328,7 +338,7 @@ fun PokemonNavigationView(modifier: Modifier, pokemonId: Int) {
             modifier = Modifier
                 .width(50.dp)
         )
-        PokemonImageView(pokemonId = pokemonId)
+        PokemonImageView(pokemonDetail = pokemon)
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "right_arrow",
