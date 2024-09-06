@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -64,6 +65,19 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
 
 sealed class PokemonListUiState {
     data object Loading : PokemonListUiState()
-    data class Success(val pokemonList: List<PokemonSummary>) : PokemonListUiState()
+    data class Success(
+        private val pokemonList: List<PokemonSummary>,
+    ) : PokemonListUiState() {
+
+        private val _filteredPokemonList = MutableStateFlow(pokemonList)
+        val filteredPokemonList = _filteredPokemonList.asStateFlow()
+
+        fun search(searchValue: String) {
+            _filteredPokemonList.value = pokemonList.filter {
+                it.name.contains(searchValue)
+            }
+        }
+    }
+
     data class Error(val message: String) : PokemonListUiState()
 }

@@ -24,15 +24,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +64,8 @@ import com.example.pokemons.presentation.viewmodel.PokemonSummaryListViewModel
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.ui.theme.Primary
 import com.example.pokemons.util.toPokedexIndex
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 @Composable
 fun PokemonListScreen(
@@ -156,7 +164,7 @@ fun PokemonListHeader() {
         modifier = Modifier
             .background(color = Primary)
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
     ) {
         Image(
             modifier = Modifier
@@ -172,14 +180,28 @@ fun PokemonListHeader() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PokedexSearchBar() {
-    SearchBar(query = "", onQueryChange = {}, onSearch = {
-
-    }, active = true, onActiveChange = {}) {
-
-    }
+fun PokedexSearchBar(value: String, onValueChange: (String) -> Unit) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 16.dp, vertical = 12.dp
+            ),
+        placeholder = { Text("Input pokemon name") },
+        leadingIcon = {
+            Image(
+                painterResource(R.drawable.ic_search),
+                contentDescription = "ic_search"
+            )
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(
+            100
+        ),
+    )
 }
 
 @Composable
@@ -190,12 +212,24 @@ fun PokemonListView(
     val uiState by pokemonSummaryListViewModel.uiState.collectAsState()
     val lazyGridState = rememberLazyGridState()
 
+    var searchValue by rememberSaveable {
+        mutableStateOf<String>("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Primary)
     ) {
         PokemonListHeader()
+        PokedexSearchBar(searchValue) {
+            //TODO: Search action
+            searchValue = it
+            println(searchValue)
+            if (uiState is PokemonListUiState.Success) {
+                (uiState as PokemonListUiState.Success).search(searchValue)
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -224,7 +258,7 @@ fun PokemonListView(
 
                 is PokemonListUiState.Success -> {
                     PokemonList(
-                        pokemonList = state.pokemonList,
+                        pokemonList = state.filteredPokemonList.collectAsState().value,
                         lazyGridState = lazyGridState,
                         onLoadMore = { pokemonSummaryListViewModel.loadMore() },
                         onItemClick = navigateToPokemonDetail
@@ -253,19 +287,14 @@ fun PokemonList(
                 onItemClick(pokemon.index)
             }
         }
-        item {
-            LaunchedEffect(Unit) {
-                onLoadMore()
-            }
-        }
     }
 
     LaunchedEffect(lazyGridState) {
-        snapshotFlow { lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { lastVisibleItemIndex ->
-                if (lastVisibleItemIndex != null && lastVisibleItemIndex == pokemonList.size - 5) {
-                    onLoadMore()
-                }
+        snapshotFlow { lazyGridState.firstVisibleItemIndex }
+            .distinctUntilChanged()
+            .filter { it > pokemonList.size - 6 }  // 마지막 15개 아이템 중 하나가 보이면
+            .collect {
+                onLoadMore()
             }
     }
 }
@@ -279,5 +308,5 @@ fun PreviewPokemonCard() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPokemonListScreen() {
-    PokemonListView { }
+    PokemonListScreen {}
 }
