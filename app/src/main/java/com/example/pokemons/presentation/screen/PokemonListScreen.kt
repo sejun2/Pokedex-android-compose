@@ -208,7 +208,11 @@ fun PokedexSearchBar(value: String, onValueChange: (String) -> Unit) {
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
+            disabledIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
+            unfocusedPlaceholderColor = Color.LightGray,
+            focusedPlaceholderColor = Color.LightGray,
         )
     )
 }
