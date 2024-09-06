@@ -23,6 +23,12 @@ val Fire = Color(0xffF57D31)
 val Flying = Color(0xffA891EC)
 val Ghost = Color(0xff70559B)
 val Normal = Color(0xffAAA67F)
-val Grass = Color.Green
-val Water = Color.Blue
+val Grass = Color(0xff74CB48)
+val Water = Color(0xff6493EB)
+val Ground = Color(0xffDEC16B)
+val Poison = Color(0xffA43E9E)
+val Ice = Color(0xff9AD6DF)
+val Psychic = Color(0xffFB5584)
+val Rock = Color(0xffB69E31)
+val Steel = Color(0xff8789D0)
 

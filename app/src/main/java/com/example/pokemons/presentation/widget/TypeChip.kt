@@ -24,8 +24,13 @@ import com.example.pokemons.ui.theme.Fire
 import com.example.pokemons.ui.theme.Flying
 import com.example.pokemons.ui.theme.Ghost
 import com.example.pokemons.ui.theme.Grass
+import com.example.pokemons.ui.theme.Ground
+import com.example.pokemons.ui.theme.Ice
 import com.example.pokemons.ui.theme.Normal
-import com.example.pokemons.ui.theme.Purple40
+import com.example.pokemons.ui.theme.Poison
+import com.example.pokemons.ui.theme.Psychic
+import com.example.pokemons.ui.theme.Rock
+import com.example.pokemons.ui.theme.Steel
 import com.example.pokemons.ui.theme.Water
 
 enum class PokemonType(val color: Color) {
@@ -66,7 +71,22 @@ enum class PokemonType(val color: Color) {
         color = Water
     ),
     POISON(
-        color = Purple40
+        color = Poison
+    ),
+    GROUND(
+        color = Ground
+    ),
+    ICE(
+        color = Ice
+    ),
+    PSYCHIC(
+        color = Psychic
+    ),
+    ROCK(
+        color = Rock
+    ),
+    STEEL(
+        color = Steel
     )
 }
 
