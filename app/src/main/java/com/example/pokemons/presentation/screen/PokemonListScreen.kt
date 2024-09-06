@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridCells.Fixed
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -285,9 +286,7 @@ fun PokemonList(
     onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = Fixed(
-            count = 3,
-        ),
+        columns = GridCells.Fixed(3),
         state = lazyGridState
     ) {
         items(pokemonList) { pokemon ->
@@ -298,9 +297,13 @@ fun PokemonList(
     }
 
     LaunchedEffect(lazyGridState) {
-        snapshotFlow { lazyGridState.firstVisibleItemIndex }
+        snapshotFlow {
+            lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
             .distinctUntilChanged()
-            .filter { it > pokemonList.size - 6 }  // 마지막 15개 아이템 중 하나가 보이면
+            .filter { lastIndex ->
+                lastIndex >= pokemonList.size - 3
+            }
             .collect {
                 onLoadMore()
             }
