@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -266,7 +267,7 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
                 DiskCache.Builder().directory(
                     directory = localContext.filesDir
                 ).build()
-            }.components{
+            }.components {
                 if (SDK_INT >= 28) {
                     add(ImageDecoderDecoder.Factory())
                 } else {
@@ -302,19 +303,25 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
         contentDescription = "image",
         imageLoader = imageLoader,
         alignment = Alignment.Center,
-        modifier = Modifier
-            .width(animWidth.dp)
-            .height(animWidth.dp)
-            .zIndex(1f),
         onSuccess = {
             completed = true
+        },
+        success = {
+            Image(
+                painter = it.painter,
+                contentDescription = "Loading",
+                modifier = Modifier
+                    .width(animWidth.dp)
+                    .height(animWidth.dp)
+                    .zIndex(1f)
+            )
         },
         loading = {
             Image(
                 painter = painterResource(id = R.drawable.ic_pokedex_logo),
                 contentDescription = "Loading",
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(180.dp)
                     .rotate(angle)
             )
         }
@@ -445,4 +452,22 @@ fun PokemonDescriptionView() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPokemonDetailView() {
+}
+
+@Preview(showBackground = true, backgroundColor = 1000)
+@Composable
+fun PreviewPokemonImageView() {
+    PokemonImageView(
+        pokemonDetail = PokemonDetail(
+            image = "",
+            name = "test",
+            moves = listOf("AAA", "BBB", "CCC"),
+            index = 33,
+            weight = 13.0,
+            types = listOf(PokemonType.FIRE),
+            description = "TESTSETSETSET",
+            height = 111.0,
+            statsList = listOf()
+        )
+    )
 }
