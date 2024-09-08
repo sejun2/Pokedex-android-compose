@@ -1,8 +1,6 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
-import android.util.Log
-import androidx.compose.animation.core.EaseInElastic
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -13,19 +11,16 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -50,15 +45,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
-import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -68,11 +58,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -180,7 +168,7 @@ fun PokemonDetailView(
 
                                     width = Dimension.fillToConstraints
                                     height = Dimension.fillToConstraints
-                                }, navHeight = navHeight.value,
+                                }, navHeight = 180.dp,
                             pokemonDetail = state.data
                         )
                     }
@@ -423,7 +411,7 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             .clip(
                 shape = RoundedCornerShape(12.dp)
             )
-            .background(color = White)
+            .background(color = MaterialTheme.colorScheme.background)
             .padding(top = navHeight / 2)
             .verticalScroll(state = verticalScrollState)
     ) {
@@ -434,7 +422,7 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             Spacer(modifier = Modifier.height(12.dp))
             PokemonPhysicsView(pokemonDetail = pokemonDetail)
             Spacer(modifier = Modifier.height(12.dp))
-            PokemonDescriptionView()
+            PokemonDescriptionView(pokemonDetail.description)
             Spacer(modifier = Modifier.height(14.dp))
             HeadTitleView("Base Stats", color = pokemonDetail.types.first().color)
             Spacer(modifier = Modifier.height(14.dp))
@@ -555,12 +543,13 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_weight),
-                    contentDescription = "image_weight"
+                    contentDescription = "image_weight",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     "${pokemonDetail.weight / 10} kg",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
@@ -585,7 +574,8 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_straighten),
-                    contentDescription = "image_height"
+                    contentDescription = "image_height",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
@@ -621,9 +611,9 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
 }
 
 @Composable
-fun PokemonDescriptionView() {
+fun PokemonDescriptionView(desc: String) {
     Text(
-        "There is a plant seed on tis back right from the day this Pokemon is born. The seed slowly grows larger.",
+        desc,
         modifier = Modifier.padding(horizontal = 12.dp),
         style = MaterialTheme.typography.bodySmall.copy(
             fontSize = 13.sp
@@ -694,5 +684,5 @@ fun PreviewPokemonStatView() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewDescriptionView() {
-    PokemonDescriptionView()
+    PokemonDescriptionView("TEST DESCRIPTION")
 }

@@ -105,11 +105,10 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
                 .fillMaxSize()
                 .shadow(4.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
                 .clickable {
                     onClick()
                 },
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background, )
         ) {
 
             Box(modifier = Modifier.fillMaxSize()) {
