@@ -4,6 +4,7 @@ import android.os.Parcelable
 import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.model.Stats
 import com.example.pokemons.presentation.widget.PokemonType
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,42 +24,42 @@ data class PokemonDetailDto(
 data class TypeDto(
     val slot: Int,
     val type: Type,
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class Type(
     val name: String,
     val url: String
-):Parcelable
+) : Parcelable
 
 
 @Parcelize
 data class AbilityDto(
     val ability: Ability,
-    @SerialName("is_hidden")
+    @SerializedName("is_hidden")
     val isHidden: Boolean,
     val slot: Int,
-):Parcelable
+) : Parcelable
 
 @Parcelize
 data class Ability(
     val name: String,
     val url: String
-):Parcelable
+) : Parcelable
 
 @Parcelize
 data class StatDto(
-    @SerialName("base_stat")
+    @SerializedName("base_stat")
     val baseStat: Int,
     val effort: Int,
     val stat: Stat
-):Parcelable
+) : Parcelable
 
 @Parcelize
 data class Stat(
     val name: String,
     val url: String
-):Parcelable
+) : Parcelable
 
 //TODO: Fix description
 fun PokemonDetailDto.toDomain(): PokemonDetail {
@@ -72,7 +73,7 @@ fun PokemonDetailDto.toDomain(): PokemonDetail {
         }
 
     val stats: List<Stats> =
-        this.stats.map { it ->
+        this.stats.map {
             Stats(
                 name = it.stat.name,
                 value = it.baseStat,

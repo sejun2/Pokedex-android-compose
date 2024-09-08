@@ -2,19 +2,20 @@ package com.example.pokemons.data.dto
 
 import android.os.Parcelable
 import com.example.pokemons.domain.model.PokemonSummaryList
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Parcelize
 data class PokemonListDto(
-    @SerialName("count")
+    @SerializedName("count")
     val count: Int,
-    @SerialName("next")
+    @SerializedName("next")
     val next: String,
-    @SerialName("previous")
+    @SerializedName("previous")
     val previous: String,
-    @SerialName("results")
+    @SerializedName("results")
     val results: List<PokemonItemDto>?
 ) : Parcelable
 

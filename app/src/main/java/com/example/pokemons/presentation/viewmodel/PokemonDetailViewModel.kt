@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.usecase.GetPokemonDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,20 +23,29 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
     private val _uiState = MutableStateFlow<PokemonDetailUiState>(PokemonDetailUiState.Initial)
     val uiState: StateFlow<PokemonDetailUiState> = _uiState.asStateFlow()
 
+    private val _selectedPokemonIndex = MutableStateFlow(-1)
+    val selectedPokemonIndex = _selectedPokemonIndex.asStateFlow()
+
+    fun setPokemonIndex(pokemonIndex: Int) {
+        _selectedPokemonIndex.value = pokemonIndex
+    }
+
     // fetch detail model list
     fun fetchPokemonDetail(pokemonIndex: Int) {
         viewModelScope.launch {
-            getPokemonDetailUseCase.execute(pokemonIndex = pokemonIndex)
-                .onStart {
-                    _uiState.value = PokemonDetailUiState.Loading
-                }.catch { e ->
-                    _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
-                }.collect { data ->
-                    _uiState.value = PokemonDetailUiState.Success(
-                        data = data,
-                        selectedPokemonIndex = 999
-                    )
-                }
+            withContext(Dispatchers.IO) {
+                getPokemonDetailUseCase.execute(pokemonIndex = pokemonIndex)
+                    .onStart {
+                        _uiState.value = PokemonDetailUiState.Loading
+                    }.catch { e ->
+                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
+                    }.collect { data ->
+                        delay(100L)
+                        _uiState.value = PokemonDetailUiState.Success(
+                            data = data,
+                        )
+                    }
+            }
         }
     }
 
@@ -46,15 +59,20 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
                 }.collect { data ->
                     _uiState.value = PokemonDetailUiState.Success(
                         data = data,
-                        selectedPokemonIndex = 999
                     )
                 }
         }
     }
 
-    override fun onCleared() {
-        println("PokemonDetailViewmodel cleared")
-        super.onCleared()
+    fun fetchNextPokemonDetail() {
+        this._selectedPokemonIndex.value++
+        fetchPokemonDetail(selectedPokemonIndex.value)
+    }
+
+    fun fetchPreviousPokemonDetail() {
+        this._selectedPokemonIndex.value--
+        fetchPokemonDetail(selectedPokemonIndex.value)
+
     }
 }
 
@@ -62,6 +80,6 @@ sealed class PokemonDetailUiState {
     data object Initial : PokemonDetailUiState()
     data object Loading : PokemonDetailUiState()
     data class Error(val msg: String) : PokemonDetailUiState()
-    data class Success(val data: PokemonDetail, val selectedPokemonIndex: Int) :
+    data class Success(val data: PokemonDetail) :
         PokemonDetailUiState()
 }

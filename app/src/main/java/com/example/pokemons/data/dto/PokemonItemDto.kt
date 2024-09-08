@@ -2,14 +2,14 @@ package com.example.pokemons.data.dto
 
 import android.os.Parcelable
 import com.example.pokemons.domain.model.PokemonSummary
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.SerialName
 
 @Parcelize
 data class PokemonItemDto(
-    @SerialName("name")
+    @SerializedName("name")
     val name: String,
-    @SerialName("url")
+    @SerializedName("url")
     val url: String,
     val index: Int,
 ) : Parcelable

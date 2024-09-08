@@ -32,3 +32,20 @@ val Psychic = Color(0xffFB5584)
 val Rock = Color(0xffB69E31)
 val Steel = Color(0xff8789D0)
 
+enum class Grayscale(val color: Color) {
+    Dark(
+        color = Color(0xff212121)
+    ),
+    Medium(
+        color = Color(0xff666666)
+    ),
+    Light(
+        color = Color(0xffe0e0e0)
+    ),
+    Background(
+        color = Color(0xffefefef)
+    ),
+    White(
+        color = Color(0xffffffff)
+    ),
+}

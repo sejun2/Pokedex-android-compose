@@ -69,6 +69,7 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
     }
 
     fun loadMore() {
+        Log.d("SummaryListViewModel", "loadmore")
         fetchPokemonList()
     }
 

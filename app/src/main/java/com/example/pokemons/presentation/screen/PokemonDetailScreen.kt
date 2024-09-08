@@ -1,32 +1,35 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.Animation
+import android.util.Log
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -34,6 +37,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,11 +49,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -57,9 +67,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -67,25 +79,34 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.disk.DiskCache
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonDetail
+import com.example.pokemons.domain.model.Stats
 import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
 import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
 import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.presentation.widget.TypeChip
+import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
+import com.example.pokemons.util.capitalizeFirstKeepRest
 import com.example.pokemons.util.toPokedexIndex
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
-fun PokemonDetailScreen(pokemonId: Int, onNavigateUp: () -> Boolean) {
+fun PokemonDetailScreen(
+    pokemonId: Int,
+    onNavigateUp: () -> Boolean,
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        pokemonDetailViewModel.setPokemonIndex(pokemonIndex = pokemonId)
+    }
+
     PokemonTheme {
-        PokemonDetailView(onNavigateUp, pokemonId)
+        PokemonDetailView(onNavigateUp, pokemonId, pokemonDetailViewModel = pokemonDetailViewModel)
     }
 }
 
@@ -93,7 +114,7 @@ fun PokemonDetailScreen(pokemonId: Int, onNavigateUp: () -> Boolean) {
 fun PokemonDetailView(
     onNavigateUp: () -> Boolean,
     pokemonId: Int,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel<PokemonDetailViewModel>()
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         pokemonDetailViewModel.fetchPokemonDetail(pokemonIndex = pokemonId)
@@ -145,7 +166,8 @@ fun PokemonDetailView(
                                     }
                                 }
                                 .zIndex(2f),
-                            state.data
+                            state.data,
+                            pokemonDetailViewModel
                         )
                         ContentCardView(
                             Modifier
@@ -206,7 +228,7 @@ fun Header(
         when (val state = uiState.value) {
             is PokemonDetailUiState.Success -> {
                 Text(
-                    state.data.name, style = TextStyle(
+                    state.data.name.capitalizeFirstKeepRest(), style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
                         fontSize = 18.sp,
@@ -240,6 +262,16 @@ fun PokemonTypeView(modifier: Modifier = Modifier, types: List<PokemonType>) {
 
 @Composable
 fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse,
+        ), label = ""
+    )
+
     Box(
         modifier = modifier
             .background(color = type.color)
@@ -251,8 +283,10 @@ fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
             painter = painterResource(id = R.drawable.ic_pokedex_logo),
             contentDescription = "logo",
             contentScale = ContentScale.FillWidth,
-            modifier = Modifier.width(240.dp),
-            alpha = 0.48f
+            modifier = Modifier
+                .width(240.dp)
+                .scale(scale),
+            alpha = 0.2f
         )
     }
 }
@@ -316,6 +350,15 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
                     .zIndex(1f)
             )
         },
+        error = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_pokedex_logo),
+                contentDescription = "Loading",
+                modifier = Modifier
+                    .size(180.dp),
+                alpha = 0.3f
+            )
+        },
         loading = {
             Image(
                 painter = painterResource(id = R.drawable.ic_pokedex_logo),
@@ -330,7 +373,11 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
 }
 
 @Composable
-fun PokemonNavigationView(modifier: Modifier, pokemon: PokemonDetail) {
+fun PokemonNavigationView(
+    modifier: Modifier,
+    pokemon: PokemonDetail,
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+) {
     Row(
         modifier = modifier
             .padding(vertical = 2.dp)
@@ -338,26 +385,37 @@ fun PokemonNavigationView(modifier: Modifier, pokemon: PokemonDetail) {
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "left_arrow",
-            tint = White,
-            modifier = Modifier
-                .width(50.dp)
-        )
+        IconButton(
+            onClick = {
+                pokemonDetailViewModel.fetchPreviousPokemonDetail()
+            }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "left_arrow",
+                tint = White,
+                modifier = Modifier
+                    .width(50.dp)
+            )
+        }
         PokemonImageView(pokemonDetail = pokemon)
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "right_arrow",
-            tint = White,
-            modifier = Modifier
-                .width(50.dp)
-        )
+        IconButton(onClick = { pokemonDetailViewModel.fetchNextPokemonDetail() }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "right_arrow",
+                tint = White,
+                modifier = Modifier
+                    .width(50.dp)
+            )
+        }
     }
 }
 
 @Composable
 fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDetail) {
+    val verticalScrollState = rememberScrollState()
+
     Box(
         modifier
             .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
@@ -366,26 +424,113 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             )
             .background(color = White)
             .padding(top = navHeight / 2)
+            .verticalScroll(state = verticalScrollState)
     ) {
         Column {
             PokemonTypeView(types = pokemonDetail.types)
+            Spacer(modifier = Modifier.height(14.dp))
+            HeadTitleView("About", color = pokemonDetail.types.first().color)
+            Spacer(modifier = Modifier.height(12.dp))
             PokemonPhysicsView(pokemonDetail = pokemonDetail)
+            Spacer(modifier = Modifier.height(12.dp))
             PokemonDescriptionView()
+            Spacer(modifier = Modifier.height(14.dp))
+            HeadTitleView("Base Stats", color = pokemonDetail.types.first().color)
+            Spacer(modifier = Modifier.height(14.dp))
+            PokemonStatsView(pokemonDetail = pokemonDetail)
         }
     }
+}
+
+@Composable
+fun PokemonStatsView(pokemonDetail: PokemonDetail) {
+    val color = pokemonDetail.types.get(0).color
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        for (stat in pokemonDetail.statsList) {
+            PokemonStatItem(stat, color)
+        }
+    }
+
+}
+
+@Composable
+fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stats.toPrettyName(),
+            modifier = Modifier
+                .width(40.dp)
+                .padding(end = 8.dp),
+            textAlign = TextAlign.End,
+            style = MaterialTheme.typography.titleSmall.copy(
+                color = color, fontWeight = FontWeight.Bold
+            )
+        )
+        Box(
+            modifier = Modifier
+                .height(22.dp)
+                .width(1.dp)
+                .background(color = Grayscale.Light.color)
+                .padding(12.dp)
+        )
+        Text(
+            stats.value.toString().toPokedexIndex(),
+            modifier = Modifier.width(36.dp),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontWeight = FontWeight.Normal
+            )
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .background(
+                    color = color.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(percent = 100)
+                )
+
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth((stats.value.div(maxStat.toFloat())))
+                    .height(4.dp)
+                    .background(color = color, shape = RoundedCornerShape(percent = 100))
+            )
+        }
+    }
+}
+
+@Composable
+fun HeadTitleView(title: String, color: Color) {
+    Text(
+        title,
+        style = MaterialTheme.typography.titleMedium.copy(
+            color = color,
+            fontWeight = FontWeight.W800,
+            fontSize = 16.sp
+        ),
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
 fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Bottom,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.weight(1f)
         ) {
             Row(
@@ -396,10 +541,16 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
                     contentDescription = "image_weight"
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("${pokemonDetail.weight / 10} kg")
+                Text(
+                    "${pokemonDetail.weight / 10} kg",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Weight")
+            Text(
+                "Weight",
+                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
+            )
         }
         Box(
             modifier = Modifier
@@ -409,6 +560,7 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
         )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.weight(1f)
         ) {
             Row(
@@ -419,10 +571,16 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
                     contentDescription = "image_height"
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("${(pokemonDetail.height / 10)} m")
+                Text(
+                    "${(pokemonDetail.height / 10)} m",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Height")
+            Text(
+                "Height",
+                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
+            )
         }
         Box(
             modifier = Modifier
@@ -432,11 +590,15 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
         )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.weight(1f)
         ) {
-            Text("${pokemonDetail.moves}")
+            Text(pokemonDetail.toPrettyMoves(), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Moves")
+            Text(
+                "Moves",
+                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
+            )
         }
     }
 }
@@ -445,7 +607,10 @@ fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDeta
 fun PokemonDescriptionView() {
     Text(
         "There is a plant seed on tis back right from the day this Pokemon is born. The seed slowly grows larger.",
-        modifier = Modifier.padding(horizontal = 12.dp)
+        modifier = Modifier.padding(horizontal = 12.dp),
+        style = MaterialTheme.typography.bodySmall.copy(
+            fontSize = 13.sp
+        )
     )
 }
 
@@ -470,4 +635,47 @@ fun PreviewPokemonImageView() {
             statsList = listOf()
         )
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewPokemonStatView() {
+    PokemonStatsView(
+        pokemonDetail = PokemonDetail(
+            image = "",
+            name = "test",
+            moves = listOf("AAA", "BBB", "CCC"),
+            index = 33,
+            weight = 13.0,
+            types = listOf(PokemonType.FIRE),
+            description = "TESTSETSETSET",
+            height = 111.0,
+            statsList = listOf(
+                Stats(
+                    name = "HP",
+                    value = 13,
+                    effort = 44,
+                    url = "test"
+                ),
+                Stats(
+                    name = "DEF",
+                    value = 13,
+                    effort = 44,
+                    url = "test"
+                ),
+                Stats(
+                    name = "ATK",
+                    value = 13,
+                    effort = 44,
+                    url = "test"
+                ),
+            )
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDescriptionView() {
+    PokemonDescriptionView()
 }
