@@ -47,7 +47,7 @@ This is a toy project implementing a PokeDex using Android Jetpack Compose. The 
 - **Retrofit**: HTTP client for API calls
 - **Gson**: JSON parsing
 - **Coil**: Image loading library
-- **Android Architecture Components**: ViewModel, LiveData
+- **Android Architecture Components**: ViewModel
 
 ## Project Structure
 
