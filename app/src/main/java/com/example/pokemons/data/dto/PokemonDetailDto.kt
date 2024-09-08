@@ -1,12 +1,14 @@
 package com.example.pokemons.data.dto
 
+import android.os.Parcelable
 import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.model.Stats
 import com.example.pokemons.presentation.widget.PokemonType
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
+@Parcelize
 data class PokemonDetailDto(
     val name: String,
     val id: Int,
@@ -15,48 +17,48 @@ data class PokemonDetailDto(
     val abilities: List<AbilityDto>,
     val stats: List<StatDto>,
     val types: List<TypeDto>
-)
+) : Parcelable
 
-@Serializable
+@Parcelize
 data class TypeDto(
     val slot: Int,
     val type: Type,
-)
+): Parcelable
 
-@Serializable
+@Parcelize
 data class Type(
     val name: String,
     val url: String
-)
+):Parcelable
 
 
-@Serializable
+@Parcelize
 data class AbilityDto(
     val ability: Ability,
     @SerialName("is_hidden")
     val isHidden: Boolean,
     val slot: Int,
-)
+):Parcelable
 
-@Serializable
+@Parcelize
 data class Ability(
     val name: String,
     val url: String
-)
+):Parcelable
 
-@Serializable
+@Parcelize
 data class StatDto(
     @SerialName("base_stat")
     val baseStat: Int,
     val effort: Int,
     val stat: Stat
-)
+):Parcelable
 
-@Serializable
+@Parcelize
 data class Stat(
     val name: String,
     val url: String
-)
+):Parcelable
 
 //TODO: Fix description
 fun PokemonDetailDto.toDomain(): PokemonDetail {

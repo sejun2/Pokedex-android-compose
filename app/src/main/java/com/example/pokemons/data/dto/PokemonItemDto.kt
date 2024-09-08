@@ -1,17 +1,18 @@
 package com.example.pokemons.data.dto
 
+import android.os.Parcelable
 import com.example.pokemons.domain.model.PokemonSummary
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
-@Serializable
+@Parcelize
 data class PokemonItemDto(
     @SerialName("name")
     val name: String,
     @SerialName("url")
     val url: String,
     val index: Int,
-)
+) : Parcelable
 
 fun PokemonItemDto.toDomain(): PokemonSummary {
     return PokemonSummary(
