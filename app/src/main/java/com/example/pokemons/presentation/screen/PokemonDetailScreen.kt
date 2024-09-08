@@ -2,6 +2,7 @@ package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
 import android.util.Log
+import androidx.compose.animation.core.EaseInElastic
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -452,11 +453,28 @@ fun PokemonStatsView(pokemonDetail: PokemonDetail) {
             PokemonStatItem(stat, color)
         }
     }
-
 }
 
 @Composable
 fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
+    var animateState by remember {
+        mutableStateOf(false)
+    }
+
+    val statBarRatio by animateFloatAsState(
+        targetValue = if (animateState) 1.0f else 0.0f,
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = EaseInOut,
+            delayMillis = 350
+        ), label = ""
+    )
+
+    LaunchedEffect(Unit) {
+        animateState = true
+    }
+
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -494,11 +512,10 @@ fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
                     color = color.copy(alpha = 0.3f),
                     shape = RoundedCornerShape(percent = 100)
                 )
-
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth((stats.value.div(maxStat.toFloat())))
+                    .fillMaxWidth((stats.value.div(maxStat.toFloat())) * statBarRatio)
                     .height(4.dp)
                     .background(color = color, shape = RoundedCornerShape(percent = 100))
             )
