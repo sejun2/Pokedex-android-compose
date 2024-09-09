@@ -1,7 +1,9 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -39,8 +41,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,6 +56,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -440,35 +445,32 @@ fun PokemonStatsView(pokemonDetail: PokemonDetail) {
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         for (stat in pokemonDetail.statsList) {
-            PokemonStatItem(stat, color)
+            key(pokemonDetail.index) {
+                PokemonStatItem(stat, color)
+            }
         }
     }
 }
 
+@Stable
 @Composable
 fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
-    var animateState by remember {
-        mutableStateOf(false)
+    val animatedProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(stats) {
+        animatedProgress.snapTo(0f)  // 즉시 0으로 설정
+        animatedProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 700,
+                easing = EaseInOut,
+                delayMillis = 350
+            )
+        )
     }
-
-    val statBarRatio by animateFloatAsState(
-        targetValue = if (animateState) 1.0f else 0.0f,
-        animationSpec = tween(
-            durationMillis = 700,
-            easing = EaseInOut,
-            delayMillis = 350
-        ), label = ""
-    )
-
-    LaunchedEffect(Unit) {
-        animateState = false
-        animateState = true
-    }
-
-
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             stats.toPrettyName(),
@@ -506,7 +508,7 @@ fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth((stats.value.div(maxStat.toFloat())) * statBarRatio)
+                    .fillMaxWidth((stats.value.div(maxStat.toFloat())) * animatedProgress.value)
                     .height(4.dp)
                     .background(color = color, shape = RoundedCornerShape(percent = 100))
             )
