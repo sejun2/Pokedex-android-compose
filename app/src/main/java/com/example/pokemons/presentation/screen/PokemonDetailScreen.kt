@@ -1,8 +1,6 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
-import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
@@ -56,7 +54,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -72,7 +69,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.compose.Visibility
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
@@ -381,29 +377,36 @@ fun PokemonNavigationView(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = {
-                pokemonDetailViewModel.fetchPreviousPokemonDetail()
-            }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "left_arrow",
-                tint = White,
-                modifier = Modifier
-                    .width(50.dp)
-            )
+        if (pokemonDetailViewModel.hasPreviousPokemon.collectAsState().value)
+            IconButton(
+                onClick = {
+                    pokemonDetailViewModel.fetchPreviousPokemonDetail()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "left_arrow",
+                    tint = White,
+                    modifier = Modifier
+                        .width(50.dp)
+                )
+            } else {
+            Box(modifier = Modifier.width(50.dp))
         }
         PokemonImageView(pokemonDetail = pokemon)
-        IconButton(onClick = { pokemonDetailViewModel.fetchNextPokemonDetail() }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "right_arrow",
-                tint = White,
-                modifier = Modifier
-                    .width(50.dp)
-            )
+        if (pokemonDetailViewModel.hasNextPokemon.collectAsState().value)
+            IconButton(onClick = { pokemonDetailViewModel.fetchNextPokemonDetail() }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "right_arrow",
+                    tint = White,
+                    modifier = Modifier
+                        .width(50.dp)
+                )
+            }
+        else {
+            Box(modifier = Modifier.width(50.dp))
         }
     }
 }

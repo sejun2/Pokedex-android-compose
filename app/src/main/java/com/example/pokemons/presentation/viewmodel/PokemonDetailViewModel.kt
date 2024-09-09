@@ -8,13 +8,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,12 +31,19 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
     private val _selectedPokemonIndex = MutableStateFlow(-1)
     val selectedPokemonIndex = _selectedPokemonIndex.asStateFlow()
 
-    val hasNextIndex = selectedPokemonIndex.filter { index ->
-        index < 999
-    }
-    val hasPreviousIndex = selectedPokemonIndex.filter { index ->
-        index > 1
-    }
+    val hasPreviousPokemon: StateFlow<Boolean> = selectedPokemonIndex.map { it > 1 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    val hasNextPokemon: StateFlow<Boolean> = selectedPokemonIndex.map { it in 1..998 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     fun setPokemonIndex(pokemonIndex: Int) {
         _selectedPokemonIndex.value = pokemonIndex
