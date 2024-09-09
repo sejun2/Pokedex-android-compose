@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +27,13 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
 
     private val _selectedPokemonIndex = MutableStateFlow(-1)
     val selectedPokemonIndex = _selectedPokemonIndex.asStateFlow()
+
+    val hasNextIndex = selectedPokemonIndex.filter { index ->
+        index < 999
+    }
+    val hasPreviousIndex = selectedPokemonIndex.filter { index ->
+        index > 1
+    }
 
     fun setPokemonIndex(pokemonIndex: Int) {
         _selectedPokemonIndex.value = pokemonIndex
@@ -66,12 +75,38 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
 
     fun fetchNextPokemonDetail() {
         this._selectedPokemonIndex.value++
-        fetchPokemonDetail(selectedPokemonIndex.value)
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                getPokemonDetailUseCase.execute(pokemonIndex = selectedPokemonIndex.value)
+                    .catch { e ->
+                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
+                    }.collect { data ->
+                        delay(100L)
+                        _uiState.value = PokemonDetailUiState.Success(
+                            data = data,
+                        )
+                    }
+            }
+        }
     }
 
     fun fetchPreviousPokemonDetail() {
         this._selectedPokemonIndex.value--
-        fetchPokemonDetail(selectedPokemonIndex.value)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                getPokemonDetailUseCase.execute(pokemonIndex = selectedPokemonIndex.value)
+
+                    .catch { e ->
+                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
+                    }.collect { data ->
+                        delay(100L)
+                        _uiState.value = PokemonDetailUiState.Success(
+                            data = data,
+                        )
+                    }
+            }
+        }
 
     }
 }

@@ -63,7 +63,9 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.LocalImageLoader
 import coil.disk.DiskCache
+import coil.imageLoader
 import coil.request.ImageRequest
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonSummary
@@ -76,6 +78,7 @@ import com.example.pokemons.util.toPokedexIndex
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 @Composable
 fun PokemonListScreen(
@@ -93,13 +96,12 @@ fun PokemonListScreen(
 
 @Stable
 @Composable
-fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
+fun PokemonCard(
+    pokemon: PokemonSummary,
+    imageLoader: ImageLoader = LocalContext.current.imageLoader,
+    onClick: () -> Unit
+) {
     val localContext = LocalContext.current
-    val imageLoader = ImageLoader.Builder(localContext).diskCache {
-        DiskCache.Builder().directory(
-            localContext.cacheDir
-        ).build()
-    }.build()
 
     Box(
         modifier = Modifier
@@ -299,7 +301,7 @@ fun PokemonList(
     isSearchMode: Boolean
 ) {
     LaunchedEffect(lazyGridState) {
-        if(isSearchMode) return@LaunchedEffect
+        if (isSearchMode) return@LaunchedEffect
 
         snapshotFlow {
             lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0

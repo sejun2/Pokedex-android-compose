@@ -1,6 +1,7 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -66,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.Visibility
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
@@ -459,6 +461,7 @@ fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
     )
 
     LaunchedEffect(Unit) {
+        animateState = false
         animateState = true
     }
 
