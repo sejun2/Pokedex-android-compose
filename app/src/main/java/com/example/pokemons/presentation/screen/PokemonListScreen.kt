@@ -36,8 +36,10 @@ import androidx.compose.material3.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,6 +50,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -60,6 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.disk.DiskCache
+import coil.request.ImageRequest
 import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonSummary
 import com.example.pokemons.presentation.viewmodel.PokemonListUiState
@@ -70,6 +75,7 @@ import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun PokemonListScreen(
@@ -85,6 +91,7 @@ fun PokemonListScreen(
     }
 }
 
+@Stable
 @Composable
 fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
     val localContext = LocalContext.current
@@ -108,7 +115,7 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
                 .clickable {
                     onClick()
                 },
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background, )
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
         ) {
 
             Box(modifier = Modifier.fillMaxSize()) {
@@ -124,7 +131,10 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
 
                 // Pokemon image
                 AsyncImage(
-                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.index}.png",
+                    model =
+                    ImageRequest.Builder(context = localContext).data(
+                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.index}.png",
+                    ).crossfade(true).size(120).build(),
                     contentDescription = "Pokemon image",
                     imageLoader = imageLoader,
                     modifier = Modifier
@@ -183,7 +193,6 @@ fun PokemonListHeader() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokedexSearchBar(value: String, onValueChange: (String) -> Unit) {
     TextField(
@@ -223,7 +232,9 @@ fun PokemonListView(
     navigateToPokemonDetail: (Int) -> Unit
 ) {
     val uiState by pokemonSummaryListViewModel.uiState.collectAsState()
-    val lazyGridState = rememberLazyGridState()
+    val lazyGridState = rememberSaveable(saver = LazyGridState.Saver) {
+        LazyGridState()
+    }
 
     var searchValue by rememberSaveable {
         mutableStateOf<String>("")
@@ -270,7 +281,8 @@ fun PokemonListView(
                         pokemonList = state.pokemonList,
                         lazyGridState = lazyGridState,
                         onLoadMore = { pokemonSummaryListViewModel.loadMore() },
-                        onItemClick = navigateToPokemonDetail
+                        onItemClick = navigateToPokemonDetail,
+                        isSearchMode = pokemonSummaryListViewModel.searchValue.collectAsState().value.isNotEmpty()
                     )
                 }
             }
@@ -283,20 +295,12 @@ fun PokemonList(
     pokemonList: List<PokemonSummary>,
     lazyGridState: LazyGridState,
     onLoadMore: () -> Unit,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Int) -> Unit,
+    isSearchMode: Boolean
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        state = lazyGridState
-    ) {
-        items(pokemonList) { pokemon ->
-            PokemonCard(pokemon) {
-                onItemClick(pokemon.index)
-            }
-        }
-    }
-
     LaunchedEffect(lazyGridState) {
+        if(isSearchMode) return@LaunchedEffect
+
         snapshotFlow {
             lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
         }
@@ -307,6 +311,19 @@ fun PokemonList(
             .collect {
                 onLoadMore()
             }
+    }
+
+    LazyVerticalGrid(
+        columns = Fixed(3),
+        state = lazyGridState
+    ) {
+        items(pokemonList) { pokemon ->
+            key(pokemon.index) {
+                PokemonCard(pokemon) {
+                    onItemClick(pokemon.index)
+                }
+            }
+        }
     }
 }
 
