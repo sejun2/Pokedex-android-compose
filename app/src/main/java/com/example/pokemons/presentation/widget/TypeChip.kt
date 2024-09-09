@@ -32,7 +32,7 @@ import com.example.pokemons.ui.theme.Psychic
 import com.example.pokemons.ui.theme.Rock
 import com.example.pokemons.ui.theme.Steel
 import com.example.pokemons.ui.theme.Water
-import com.example.pokemons.util.capitalizeFirstKeepRest
+import com.example.pokemons.util.capitalizeFirstLowercaseRest
 
 enum class PokemonType(val color: Color) {
     BUG(
@@ -102,7 +102,7 @@ fun TypeChip(pokemonType: PokemonType) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            pokemonType.name.capitalizeFirstKeepRest(),
+            pokemonType.name.capitalizeFirstLowercaseRest(),
             style = TextStyle(
                 fontWeight = FontWeight.W800,
                 color = White,

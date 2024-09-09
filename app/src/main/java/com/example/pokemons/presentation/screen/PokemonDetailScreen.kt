@@ -81,7 +81,7 @@ import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.presentation.widget.TypeChip
 import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
-import com.example.pokemons.util.capitalizeFirstKeepRest
+import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
 
 @Composable
@@ -217,7 +217,7 @@ fun Header(
         when (val state = uiState.value) {
             is PokemonDetailUiState.Success -> {
                 Text(
-                    state.data.name.capitalizeFirstKeepRest(), style = TextStyle(
+                    state.data.name.capitalizeFirstLowercaseRest(), style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
                         fontSize = 18.sp,

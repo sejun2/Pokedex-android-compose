@@ -1,20 +1,33 @@
 package com.example.pokemons.util
 
+/**
+ * The pokedexIndexString length should have at least 3.
+ * If length is shorter than 3, then empty section of each string digits fill as "0"
+ * ex)
+ * val index = "23"
+ * val processedIndex = index.toPokedexIndex()
+ *
+ * `processedIndex.equals("023")`
+ */
 fun String.toPokedexIndex(): String {
-    var result = this
+    val result = StringBuilder(this)
 
-    if (this.length < 3) {
-        val count = 3 - this.length
-
-        for (i in 0..<count) {
-            result = "0$result"
-        }
+    for (i in 0 until 3 - this.length) {
+        result.insert(0, "0")
     }
 
-    return result
+    return result.toString()
 }
 
-fun String.capitalizeFirstKeepRest(): String {
+/**
+ * Capitalize first String and lowercase rest String
+ * ex)
+ * val data = "butterFree"
+ * val processedData = data.capitalizeFirstLowercaseRest()
+ *
+ * `processedData.equals("Butterfree")`
+ */
+fun String.capitalizeFirstLowercaseRest(): String {
     return if (this.isEmpty()) {
         this
     } else {

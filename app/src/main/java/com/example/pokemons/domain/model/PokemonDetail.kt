@@ -1,7 +1,7 @@
 package com.example.pokemons.domain.model
 
 import com.example.pokemons.presentation.widget.PokemonType
-import com.example.pokemons.util.capitalizeFirstKeepRest
+import com.example.pokemons.util.capitalizeFirstLowercaseRest
 
 data class PokemonDetail(
     val name: String,
@@ -18,7 +18,7 @@ data class PokemonDetail(
         val sb: StringBuilder = StringBuilder()
 
         for (i: Int in 0 until this.moves.size) {
-            sb.append(moves[i].capitalizeFirstKeepRest())
+            sb.append(moves[i].capitalizeFirstLowercaseRest())
 
             if (i != moves.size - 1) {
                 sb.append("\n")

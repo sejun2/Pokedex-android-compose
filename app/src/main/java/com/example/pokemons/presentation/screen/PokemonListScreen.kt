@@ -66,7 +66,7 @@ import com.example.pokemons.presentation.viewmodel.PokemonListUiState
 import com.example.pokemons.presentation.viewmodel.PokemonSummaryListViewModel
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.ui.theme.Primary
-import com.example.pokemons.util.capitalizeFirstKeepRest
+import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -146,7 +146,7 @@ fun PokemonCard(pokemon: PokemonSummary, onClick: () -> Unit) {
                         contentAlignment = Alignment.BottomCenter
                     ) {
                         Text(
-                            text = pokemon.name.capitalizeFirstKeepRest(),
+                            text = pokemon.name.capitalizeFirstLowercaseRest(),
                             fontWeight = FontWeight.W400,
                             fontSize = 14.sp,
                             modifier = Modifier
