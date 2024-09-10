@@ -159,7 +159,14 @@ fun PokemonDetailView(
                                 }
                                 .zIndex(2f),
                             state.data,
-                            pokemonDetailViewModel
+                            hasPreviousPokemon = pokemonDetailViewModel.hasPreviousPokemon.collectAsState().value,
+                            hasNextPokemon = pokemonDetailViewModel.hasNextPokemon.collectAsState().value,
+                            onNextPokemonButtonClick = {
+                                pokemonDetailViewModel.fetchNextPokemonDetail()
+                            },
+                            onPreviousPokemonButtonClick = {
+                                pokemonDetailViewModel.fetchPreviousPokemonDetail()
+                            }
                         )
                         ContentCardView(
                             Modifier
@@ -368,7 +375,10 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
 fun PokemonNavigationView(
     modifier: Modifier,
     pokemon: PokemonDetail,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+    hasNextPokemon: Boolean,
+    onNextPokemonButtonClick: () -> Unit,
+    onPreviousPokemonButtonClick: () -> Unit,
+    hasPreviousPokemon: Boolean
 ) {
     Row(
         modifier = modifier
@@ -377,11 +387,10 @@ fun PokemonNavigationView(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (pokemonDetailViewModel.hasPreviousPokemon.collectAsState().value)
+        if (hasPreviousPokemon)
             IconButton(
-                onClick = {
-                    pokemonDetailViewModel.fetchPreviousPokemonDetail()
-                }
+                onClick = onPreviousPokemonButtonClick
+
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -394,8 +403,9 @@ fun PokemonNavigationView(
             Box(modifier = Modifier.width(50.dp))
         }
         PokemonImageView(pokemonDetail = pokemon)
-        if (pokemonDetailViewModel.hasNextPokemon.collectAsState().value)
-            IconButton(onClick = { pokemonDetailViewModel.fetchNextPokemonDetail() }
+        if (hasNextPokemon)
+            IconButton(
+                onClick = onNextPokemonButtonClick
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
