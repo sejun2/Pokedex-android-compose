@@ -1,4 +1,5 @@
 # PokeDex Android App
+[rec2.webm](https://github.com/user-attachments/assets/5a6ea29d-ba43-4362-b390-7e432faffc20)
 
 <img src="https://github.com/user-attachments/assets/e34758a4-6bdb-456d-a608-6231489e9f2d" width="300" alt="Screenshot_20240909_031850">
 <img src="https://github.com/user-attachments/assets/1fbc9c79-05bc-40b0-b20e-bccd2309f235" width="300" alt="Screenshot_20240909_031909">
