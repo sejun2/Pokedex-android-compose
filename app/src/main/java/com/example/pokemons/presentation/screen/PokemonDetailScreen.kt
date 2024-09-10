@@ -29,8 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +51,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -80,8 +77,12 @@ import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.model.Stats
 import com.example.pokemons.presentation.viewmodel.PokemonDetailUiState
 import com.example.pokemons.presentation.viewmodel.PokemonDetailViewModel
+import com.example.pokemons.presentation.widget.HeadTitleView
+import com.example.pokemons.presentation.widget.PokemonDescriptionView
+import com.example.pokemons.presentation.widget.PokemonNavigationView
+import com.example.pokemons.presentation.widget.PokemonPhysicsView
 import com.example.pokemons.presentation.widget.PokemonType
-import com.example.pokemons.presentation.widget.TypeChip
+import com.example.pokemons.presentation.widget.PokemonTypeView
 import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.util.capitalizeFirstLowercaseRest
@@ -209,7 +210,7 @@ fun Header(
 ) {
     val uiState = pokemonDetailViewModel.uiState.collectAsState()
     Row(
-        modifier = Modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
+        modifier = modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
@@ -250,14 +251,6 @@ fun Header(
 
 }
 
-@Composable
-fun PokemonTypeView(modifier: Modifier = Modifier, types: List<PokemonType>) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        types.map {
-            TypeChip(it)
-        }
-    }
-}
 
 @Composable
 fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
@@ -371,55 +364,6 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
 
 }
 
-@Composable
-fun PokemonNavigationView(
-    modifier: Modifier,
-    pokemon: PokemonDetail,
-    hasNextPokemon: Boolean,
-    onNextPokemonButtonClick: () -> Unit,
-    onPreviousPokemonButtonClick: () -> Unit,
-    hasPreviousPokemon: Boolean
-) {
-    Row(
-        modifier = modifier
-            .padding(vertical = 2.dp)
-            .zIndex(2f),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (hasPreviousPokemon)
-            IconButton(
-                onClick = onPreviousPokemonButtonClick
-
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "left_arrow",
-                    tint = White,
-                    modifier = Modifier
-                        .width(50.dp)
-                )
-            } else {
-            Box(modifier = Modifier.width(50.dp))
-        }
-        PokemonImageView(pokemonDetail = pokemon)
-        if (hasNextPokemon)
-            IconButton(
-                onClick = onNextPokemonButtonClick
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "right_arrow",
-                    tint = White,
-                    modifier = Modifier
-                        .width(50.dp)
-                )
-            }
-        else {
-            Box(modifier = Modifier.width(50.dp))
-        }
-    }
-}
 
 @Composable
 fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDetail) {
@@ -435,17 +379,14 @@ fun ContentCardView(modifier: Modifier, navHeight: Dp, pokemonDetail: PokemonDet
             .padding(top = navHeight / 2)
             .verticalScroll(state = verticalScrollState)
     ) {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
             PokemonTypeView(types = pokemonDetail.types)
-            Spacer(modifier = Modifier.height(14.dp))
             HeadTitleView("About", color = pokemonDetail.types.first().color)
-            Spacer(modifier = Modifier.height(12.dp))
             PokemonPhysicsView(pokemonDetail = pokemonDetail)
-            Spacer(modifier = Modifier.height(12.dp))
             PokemonDescriptionView(pokemonDetail.description)
-            Spacer(modifier = Modifier.height(14.dp))
             HeadTitleView("Base Stats", color = pokemonDetail.types.first().color)
-            Spacer(modifier = Modifier.height(14.dp))
             PokemonStatsView(pokemonDetail = pokemonDetail)
         }
     }
@@ -529,115 +470,6 @@ fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
     }
 }
 
-@Composable
-fun HeadTitleView(title: String, color: Color) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleMedium.copy(
-            color = color,
-            fontWeight = FontWeight.W800,
-            fontSize = 16.sp
-        ),
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-@Composable
-fun PokemonPhysicsView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.Bottom,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.weight(1f)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_weight),
-                    contentDescription = "image_weight",
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    "${pokemonDetail.weight / 10} kg",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                "Weight",
-                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .height(50.dp)
-                .background(color = Color.Gray.copy(alpha = 0.5f))
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.weight(1f)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_straighten),
-                    contentDescription = "image_height",
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    "${(pokemonDetail.height / 10)} m",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                "Height",
-                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .height(50.dp)
-                .background(color = Color.Gray.copy(alpha = 0.5f))
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(pokemonDetail.toPrettyMoves(), style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                "Moves",
-                style = MaterialTheme.typography.titleSmall.copy(color = Grayscale.Medium.color)
-            )
-        }
-    }
-}
-
-@Composable
-fun PokemonDescriptionView(desc: String) {
-    Text(
-        desc,
-        modifier = Modifier.padding(horizontal = 12.dp),
-        style = MaterialTheme.typography.bodySmall.copy(
-            fontSize = 13.sp
-        )
-    )
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
