@@ -162,6 +162,8 @@ fun PokemonDetailView(
                             state.data,
                             hasPreviousPokemon = pokemonDetailViewModel.hasPreviousPokemon.collectAsState().value,
                             hasNextPokemon = pokemonDetailViewModel.hasNextPokemon.collectAsState().value,
+                            prevPokemon = (uiState.value as PokemonDetailUiState.Success).prevData,
+                            nextPokemon = (uiState.value as PokemonDetailUiState.Success).nextData,
                             onNextPokemonButtonClick = {
                                 pokemonDetailViewModel.fetchNextPokemonDetail()
                             },
@@ -325,6 +327,7 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
     )
 
     SubcomposeAsyncImage(
+        modifier = modifier,
         model = pokemonDetail.imageSrc,
         contentDescription = "image",
         imageLoader = imageLoader,

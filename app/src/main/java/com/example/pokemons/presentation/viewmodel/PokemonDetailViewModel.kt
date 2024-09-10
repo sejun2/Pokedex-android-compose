@@ -6,18 +6,17 @@ import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.usecase.GetPokemonDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -53,17 +52,34 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
     fun fetchPokemonDetail(pokemonIndex: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                getPokemonDetailUseCase.execute(pokemonIndex = pokemonIndex)
-                    .onStart {
-                        _uiState.value = PokemonDetailUiState.Loading
-                    }.catch { e ->
-                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
-                    }.collect { data ->
-                        delay(100L)
-                        _uiState.value = PokemonDetailUiState.Success(
-                            data = data,
-                        )
+                try {
+                    val currentIndex = selectedPokemonIndex.value
+
+                    var prev: PokemonDetail? = null
+                    lateinit var current: PokemonDetail
+                    var next: PokemonDetail? = null
+
+                    getPokemonDetailUseCase.execute(currentIndex).collect {
+                        current = it
                     }
+
+                    if (currentIndex - 1 > 0)
+                        getPokemonDetailUseCase.execute(currentIndex - 1).collect {
+                            prev = it
+                        }
+                    if (currentIndex + 1 > 0)
+                        getPokemonDetailUseCase.execute(currentIndex + 1).collect {
+                            next = it
+                        }
+
+                    _uiState.value = PokemonDetailUiState.Success(
+                        data = current,
+                        nextData = next,
+                        prevData = prev
+                    )
+                } catch (e: Exception) {
+                    _uiState.value = PokemonDetailUiState.Error(e.toString())
+                }
             }
         }
     }
@@ -85,39 +101,12 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
 
     fun fetchNextPokemonDetail() {
         this._selectedPokemonIndex.value++
-
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                getPokemonDetailUseCase.execute(pokemonIndex = selectedPokemonIndex.value)
-                    .catch { e ->
-                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
-                    }.collect { data ->
-                        delay(100L)
-                        _uiState.value = PokemonDetailUiState.Success(
-                            data = data,
-                        )
-                    }
-            }
-        }
+        fetchPokemonDetail(selectedPokemonIndex.value)
     }
 
     fun fetchPreviousPokemonDetail() {
         this._selectedPokemonIndex.value--
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                getPokemonDetailUseCase.execute(pokemonIndex = selectedPokemonIndex.value)
-
-                    .catch { e ->
-                        _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
-                    }.collect { data ->
-                        delay(100L)
-                        _uiState.value = PokemonDetailUiState.Success(
-                            data = data,
-                        )
-                    }
-            }
-        }
-
+        fetchPokemonDetail(selectedPokemonIndex.value)
     }
 }
 
