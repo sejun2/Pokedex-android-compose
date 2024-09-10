@@ -34,3 +34,7 @@ fun String.capitalizeFirstLowercaseRest(): String {
         this[0].uppercase() + this.substring(1).lowercase()
     }
 }
+
+fun String.hyphenToUnderscore(): String {
+    return this.replace("-", "_")
+}

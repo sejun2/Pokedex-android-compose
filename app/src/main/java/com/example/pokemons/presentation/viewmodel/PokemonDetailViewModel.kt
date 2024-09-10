@@ -125,6 +125,10 @@ sealed class PokemonDetailUiState {
     data object Initial : PokemonDetailUiState()
     data object Loading : PokemonDetailUiState()
     data class Error(val msg: String) : PokemonDetailUiState()
-    data class Success(val data: PokemonDetail) :
+    data class Success(
+        val data: PokemonDetail,
+        val prevData: PokemonDetail? = null,
+        val nextData: PokemonDetail? = null
+    ) :
         PokemonDetailUiState()
 }

@@ -325,7 +325,7 @@ fun PokemonImageView(modifier: Modifier = Modifier, pokemonDetail: PokemonDetail
     )
 
     SubcomposeAsyncImage(
-        model = "https://projectpokemon.org/images/normal-sprite/${pokemonDetail.name.lowercase()}.gif",
+        model = pokemonDetail.imageSrc,
         contentDescription = "image",
         imageLoader = imageLoader,
         alignment = Alignment.Center,

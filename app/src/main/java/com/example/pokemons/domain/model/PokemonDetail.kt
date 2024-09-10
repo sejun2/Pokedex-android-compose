@@ -2,6 +2,7 @@ package com.example.pokemons.domain.model
 
 import com.example.pokemons.presentation.widget.PokemonType
 import com.example.pokemons.util.capitalizeFirstLowercaseRest
+import com.example.pokemons.util.hyphenToUnderscore
 
 data class PokemonDetail(
     val name: String,
@@ -12,7 +13,8 @@ data class PokemonDetail(
     val height: Double,
     val moves: List<String>,
     val description: String,
-    val statsList: List<Stats>
+    val statsList: List<Stats>,
+    val imageSrc: String = "https://projectpokemon.org/images/normal-sprite/${name.lowercase().hyphenToUnderscore()}.gif"
 ) {
     fun toPrettyMoves(): String {
         val sb: StringBuilder = StringBuilder()
