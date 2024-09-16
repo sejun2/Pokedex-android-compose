@@ -31,9 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentCompositionLocalContext
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -286,32 +289,35 @@ fun PokemonList(
     onItemClick: (Int) -> Unit,
     isSearchMode: Boolean
 ) {
-    LaunchedEffect(lazyGridState) {
-        if (isSearchMode) return@LaunchedEffect
-
-        snapshotFlow {
-            lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-        }
-            .distinctUntilChanged()
-            .filter { lastIndex ->
-                lastIndex >= pokemonList.size - 3
-            }
-            .collect {
-                onLoadMore()
-            }
-    }
-
     LazyVerticalGrid(
         columns = Fixed(3),
         state = lazyGridState
     ) {
-        items(pokemonList) { pokemon ->
-            key(pokemon.index) {
-                PokemonCard(pokemon) {
-                    onItemClick(pokemon.index)
-                }
+        items(pokemonList, key = { it.index }) { pokemon ->
+            PokemonCard(pokemon) {
+                onItemClick(pokemon.index)
             }
         }
+    }
+
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf false
+
+            lastVisibleItem.index == lazyGridState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if(isSearchMode) return@LaunchedEffect
+
+        snapshotFlow { shouldLoadMore.value }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect {
+                onLoadMore()
+            }
     }
 }
 
