@@ -8,6 +8,8 @@
 
 This is a toy project implementing a PokeDex using Android Jetpack Compose. The app follows Clean Architecture principles with MVVM (Model-View-ViewModel) pattern.
 
+## Architecture Overview
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                           Presentation Layer                    │
 │  ┌─────────────────┐    ┌──────────────┐                        │
@@ -36,7 +38,7 @@ This is a toy project implementing a PokeDex using Android Jetpack Compose. The 
 │  │  Source (API)│◄───│  (Implementations)│                      │
 │  └──────────────┘    └───────────────────┘                      │
 └─────────────────────────────────────────────────────────────────┘
-
+```
 ## Tech Stack
 
 - **Jetpack Compose**: Modern Android UI toolkit
