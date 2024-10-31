@@ -1,7 +1,9 @@
 package com.example.pokemons.presentation.widget
 
 import android.os.Build.VERSION.SDK_INT
+import android.provider.CalendarContract
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
@@ -76,7 +79,7 @@ fun PokemonNavigationView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (hasPreviousPokemon)
-            Box(Modifier.width(50.dp)) {
+            Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center) {
                 SubcomposeAsyncImage(
                     model = prevPokemon?.imageSrc,
                     contentDescription = "image",
@@ -112,9 +115,11 @@ fun PokemonNavigationView(
             } else {
             Box(modifier = Modifier.width(50.dp))
         }
-        PokemonImageView(pokemonDetail = pokemon)
+        Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center){
+            PokemonImageView(pokemonDetail = pokemon)
+        }
         if (hasNextPokemon)
-            Box(Modifier.width(50.dp)) {
+            Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center) {
                 SubcomposeAsyncImage(
                     model = nextPokemon?.imageSrc,
                     contentDescription = "image",
