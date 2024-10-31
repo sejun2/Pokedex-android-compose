@@ -76,7 +76,7 @@ fun PokemonNavigationView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (hasPreviousPokemon)
-            Box {
+            Box(Modifier.width(50.dp)) {
                 SubcomposeAsyncImage(
                     model = prevPokemon?.imageSrc,
                     contentDescription = "image",
@@ -114,7 +114,7 @@ fun PokemonNavigationView(
         }
         PokemonImageView(pokemonDetail = pokemon)
         if (hasNextPokemon)
-            Box {
+            Box(Modifier.width(50.dp)) {
                 SubcomposeAsyncImage(
                     model = nextPokemon?.imageSrc,
                     contentDescription = "image",
