@@ -1,58 +1,49 @@
 package com.example.pokemons.presentation.widget
 
+import android.annotation.SuppressLint
 import android.os.Build.VERSION.SDK_INT
-import android.provider.CalendarContract
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.ImageLoader
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.disk.DiskCache
-import com.example.pokemons.R
 import com.example.pokemons.domain.model.PokemonDetail
-import com.example.pokemons.presentation.screen.PokemonImageView
+import kotlin.math.absoluteValue
 
 
+@SuppressLint("RestrictedApi")
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PokemonNavigationView(
     modifier: Modifier,
-    pokemon: PokemonDetail,
-    prevPokemon: PokemonDetail? = null,
-    nextPokemon: PokemonDetail? = null,
-    hasNextPokemon: Boolean,
-    onNextPokemonButtonClick: () -> Unit,
-    onPreviousPokemonButtonClick: () -> Unit,
-    hasPreviousPokemon: Boolean
+    pokemonList: List<PokemonDetail>,
+    selectedPokemonIndex: Int,
+    onPageMoved: (Int) -> Unit,
 ) {
+    Log.d("PokemonNavigationView", "$pokemonList $selectedPokemonIndex")
     val localContext = LocalContext.current
 
     val imageLoader = remember {
@@ -71,57 +62,47 @@ fun PokemonNavigationView(
             .build()
     }
 
-    Row(
-        modifier = modifier
-            .padding(vertical = 2.dp)
-            .zIndex(2f),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (hasPreviousPokemon)
-            Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center) {
-                SubcomposeAsyncImage(
-                    model = prevPokemon?.imageSrc,
-                    contentDescription = "image",
-                    alignment = Alignment.Center,
-                    imageLoader = imageLoader,
-                    success = {
-                        Image(
-                            painter = it.painter,
-                            contentDescription = "Loading",
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(80.dp)
-                                .zIndex(1f)
-                                .alpha(0.5f),
-                            colorFilter = ColorFilter.tint(
-                                Gray, blendMode = BlendMode.SrcIn
-                            )
-                        )
-                    },
-                )
-                IconButton(
-                    onClick = onPreviousPokemonButtonClick
+    val pagerState = rememberPagerState(
+        initialPage = 1,
+        initialPageOffsetFraction = 0.0f,
+        pageCount = {
+            pokemonList.size
+        },
+    )
 
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "left_arrow",
-                        tint = White,
-                        modifier = Modifier
-                            .width(50.dp)
-                    )
-                }
-            } else {
-            Box(modifier = Modifier.width(50.dp))
-        }
-        Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center){
-            PokemonImageView(pokemonDetail = pokemon)
-        }
-        if (hasNextPokemon)
-            Box(Modifier.weight(1.0f), contentAlignment = Alignment.Center) {
+    LaunchedEffect(pagerState.currentPage) {
+        onPageMoved(pokemonList.get(pagerState.currentPage).index)
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        pageSpacing = 16.dp,  // 아이템 간의 간격
+        modifier = Modifier.zIndex(2f),
+        contentPadding = PaddingValues(150.dp),
+        key = { page -> pokemonList[page].index }
+    ) { page ->
+        Box(
+            modifier = Modifier
+                .width(200.dp)
+                .height(200.dp)
+                .padding(8.dp)
+                .graphicsLayer {
+                    // 현재 페이지와의 거리 계산
+                    val pageOffset = (
+                            (pagerState.currentPage - page) + pagerState
+                                .currentPageOffsetFraction
+                            ).absoluteValue
+
+                    // 선택되지 않은 아이템은 작게, 흐리게 표시
+                    scaleX = 1f - (pageOffset * 0.5f)
+                    scaleY = 1f - (pageOffset * 0.5f)
+                    alpha = 1f - (pageOffset * 0.6f)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Box(contentAlignment = Alignment.Center) {
                 SubcomposeAsyncImage(
-                    model = nextPokemon?.imageSrc,
+                    model = pokemonList.get(page).imageSrc,
                     contentDescription = "image",
                     alignment = Alignment.Center,
                     imageLoader = imageLoader,
@@ -130,30 +111,13 @@ fun PokemonNavigationView(
                             painter = it.painter,
                             contentDescription = "Loading",
                             modifier = Modifier
-                                .width(80.dp)
-                                .height(80.dp)
+                                .width(190.dp)
+                                .height(190.dp)
                                 .zIndex(1f)
-                                .alpha(0.5f),
-                            colorFilter = ColorFilter.tint(
-                                Gray, blendMode = BlendMode.SrcIn
-                            )
                         )
                     },
                 )
-                IconButton(
-                    onClick = onNextPokemonButtonClick
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "right_arrow",
-                        tint = White,
-                        modifier = Modifier
-                            .width(50.dp)
-                    )
-                }
             }
-        else {
-            Box(modifier = Modifier.width(50.dp))
         }
     }
 }

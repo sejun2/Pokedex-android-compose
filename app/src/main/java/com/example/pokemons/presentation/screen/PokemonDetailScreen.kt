@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,7 @@ import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
+import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
@@ -126,23 +128,28 @@ fun PokemonDetailView(
             val navHeight = remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
 
+            val scope = rememberCoroutineScope()
+
             when (val state = uiState.value) {
                 is PokemonDetailUiState.Success ->
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = state.data.types[0].color)
+                            .background(color = state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.types[0].color)
                     ) {
                         val guideline = createGuidelineFromTop(0.3f)
 
                         val (backgroundFieldViewRef, navViewRef, contentViewRef) = createRefs()
 
-                        BackgroundFieldView(Modifier.constrainAs(backgroundFieldViewRef) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(guideline)
+                        BackgroundFieldView(
+                            Modifier.constrainAs(backgroundFieldViewRef) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(guideline)
 
-                            height = Dimension.fillToConstraints
-                        }, state.data.types[0])
+                                height = Dimension.fillToConstraints
+                            },
+                            state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.types[0]
+                        )
 
                         PokemonNavigationView(
                             Modifier
@@ -159,16 +166,12 @@ fun PokemonDetailView(
                                     }
                                 }
                                 .zIndex(2f),
-                            state.data,
-                            hasPreviousPokemon = pokemonDetailViewModel.hasPreviousPokemon.collectAsState().value,
-                            hasNextPokemon = pokemonDetailViewModel.hasNextPokemon.collectAsState().value,
-                            prevPokemon = (uiState.value as PokemonDetailUiState.Success).prevData,
-                            nextPokemon = (uiState.value as PokemonDetailUiState.Success).nextData,
-                            onNextPokemonButtonClick = {
-                                pokemonDetailViewModel.fetchNextPokemonDetail()
-                            },
-                            onPreviousPokemonButtonClick = {
-                                pokemonDetailViewModel.fetchPreviousPokemonDetail()
+                            pokemonList = state.data,
+                            selectedPokemonIndex = pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value,
+                            onPageMoved = {
+                                scope.launch {
+                                    pokemonDetailViewModel.setPokemonIndex(it)
+                                }
                             }
                         )
                         ContentCardView(
@@ -182,7 +185,7 @@ fun PokemonDetailView(
                                     width = Dimension.fillToConstraints
                                     height = Dimension.fillToConstraints
                                 }, navHeight = 180.dp,
-                            pokemonDetail = state.data
+                            pokemonDetail = state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }
                         )
                     }
 
@@ -230,7 +233,8 @@ fun Header(
         when (val state = uiState.value) {
             is PokemonDetailUiState.Success -> {
                 Text(
-                    state.data.name.capitalizeFirstLowercaseRest(), style = TextStyle(
+                    state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.name.capitalizeFirstLowercaseRest(),
+                    style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
                         fontSize = 18.sp,
@@ -238,7 +242,10 @@ fun Header(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "#${state.data.index.toString().toPokedexIndex()}", style = TextStyle(
+                    "#${
+                        state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.index.toString()
+                            .toPokedexIndex()
+                    }", style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
                         fontSize = 12.sp
