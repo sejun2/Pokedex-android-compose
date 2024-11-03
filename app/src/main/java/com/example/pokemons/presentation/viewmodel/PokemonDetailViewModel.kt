@@ -5,10 +5,14 @@ import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.usecase.GetPokemonDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.withContext
+import java.util.ArrayList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,8 +24,7 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
     private val _selectedPokemonIndex = MutableStateFlow(-1)
     val selectedPokemonIndex = _selectedPokemonIndex.asStateFlow()
 
-    private val _pokemonList = MutableStateFlow(ArrayList<PokemonDetail>())
-    val pokemonList = _pokemonList.asStateFlow()
+    private var _pokemonList = arrayListOf<PokemonDetail>()
 
     suspend fun setPokemonIndex(pokemonIndex: Int) {
         fetchPokemonDetail(pokemonIndex)
@@ -29,62 +32,40 @@ class PokemonDetailViewModel @Inject constructor(private val getPokemonDetailUse
     }
 
     // fetch detail model list
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun fetchPokemonDetail(pokemonIndex: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                val tmpList: ArrayList<PokemonDetail> = _pokemonList.value.clone() as ArrayList<PokemonDetail>
+        runCatching {
+            withContext(Dispatchers.IO) {
+                val tmpList = _pokemonList.clone() as ArrayList<PokemonDetail>
 
-                if (pokemonIndex - 1 > 0)
-                    getPokemonDetailUseCase.execute(pokemonIndex - 1).collect {
-                        if (_pokemonList.value.contains(it)) return@collect
-                        tmpList.add(0,it)
-                    }
+                val flowList = listOfNotNull(
+                    getPokemonDetailUseCase.execute(pokemonIndex),
+                    if (pokemonIndex - 1 > 0)
+                        getPokemonDetailUseCase.execute(pokemonIndex - 1) else null,
+                    if (pokemonIndex + 1 > 0)
+                        getPokemonDetailUseCase.execute(pokemonIndex + 1) else null,
+                )
 
-                getPokemonDetailUseCase.execute(pokemonIndex).collect {
-                    if (_pokemonList.value.contains(it)) return@collect
-                    tmpList.add(it)
-                }
-
-                if (pokemonIndex + 1 > 0)
-                    getPokemonDetailUseCase.execute(pokemonIndex + 1).collect {
-                        if (_pokemonList.value.contains(it)) return@collect
+                // parallel execution
+                flowList.asFlow().flatMapMerge { it }.collect {
+                    if (!tmpList.contains(it)) {
                         tmpList.add(it)
                     }
 
-                _pokemonList.value = tmpList
+                    tmpList.sortBy { it.index }
+                }
+
+                _pokemonList = tmpList
 
                 _uiState.value = PokemonDetailUiState.Success(
-                    data = _pokemonList.value,
+                    data = _pokemonList,
                 )
-            } catch (e: Exception) {
-                _uiState.value = PokemonDetailUiState.Error(e.toString())
             }
+        }.onFailure() {
+            _uiState.value = PokemonDetailUiState.Error(
+                it.message.toString()
+            )
         }
-    }
-
-    fun fetchPokemonDetail(pokemonName: String) {
-//        viewModelScope.launch {
-//            getPokemonDetailUseCase.execute(pokemonName = pokemonName)
-//                .onStart {
-//                    _uiState.value = PokemonDetailUiState.Loading
-//                }.catch { e ->
-//                    _uiState.value = PokemonDetailUiState.Error(e.stackTraceToString())
-//                }.collect { data ->
-//                    _uiState.value = PokemonDetailUiState.Success(
-//                        data = data,
-//                    )
-//                }
-//        }
-    }
-
-    suspend fun fetchNextPokemonDetail() {
-        this._selectedPokemonIndex.value++
-        fetchPokemonDetail(selectedPokemonIndex.value)
-    }
-
-    suspend fun fetchPreviousPokemonDetail() {
-        this._selectedPokemonIndex.value--
-        fetchPokemonDetail(selectedPokemonIndex.value)
     }
 }
 

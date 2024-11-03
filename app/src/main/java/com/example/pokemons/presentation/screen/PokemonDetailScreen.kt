@@ -111,10 +111,6 @@ fun PokemonDetailView(
     pokemonId: Int,
     pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        pokemonDetailViewModel.fetchPokemonDetail(pokemonIndex = pokemonId)
-    }
-
     val uiState = pokemonDetailViewModel.uiState.collectAsState()
 
     Scaffold(
@@ -478,71 +474,4 @@ fun PokemonStatItem(stats: Stats, color: Color, maxStat: Int = 250) {
             )
         }
     }
-}
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewPokemonDetailView() {
-}
-
-@Preview(showBackground = true, backgroundColor = 1000)
-@Composable
-fun PreviewPokemonImageView() {
-    PokemonImageView(
-        pokemonDetail = PokemonDetail(
-            image = "",
-            name = "test",
-            moves = listOf("AAA", "BBB", "CCC"),
-            index = 33,
-            weight = 13.0,
-            types = listOf(PokemonType.FIRE),
-            description = "TESTSETSETSET",
-            height = 111.0,
-            statsList = listOf()
-        )
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewPokemonStatView() {
-    PokemonStatsView(
-        pokemonDetail = PokemonDetail(
-            image = "",
-            name = "test",
-            moves = listOf("AAA", "BBB", "CCC"),
-            index = 33,
-            weight = 13.0,
-            types = listOf(PokemonType.FIRE),
-            description = "TESTSETSETSET",
-            height = 111.0,
-            statsList = listOf(
-                Stats(
-                    name = "HP",
-                    value = 13,
-                    effort = 44,
-                    url = "test"
-                ),
-                Stats(
-                    name = "DEF",
-                    value = 13,
-                    effort = 44,
-                    url = "test"
-                ),
-                Stats(
-                    name = "ATK",
-                    value = 13,
-                    effort = 44,
-                    url = "test"
-                ),
-            )
-        )
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDescriptionView() {
-    PokemonDescriptionView("TEST DESCRIPTION")
 }
