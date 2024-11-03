@@ -91,8 +91,8 @@ fun PokemonNavigationView(
     ) { page ->
         Box(
             modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
+                .width(250.dp)
+                .height(250.dp)
                 .padding(8.dp)
                 .graphicsLayer {
                     // 현재 페이지와의 거리 계산
@@ -130,8 +130,8 @@ fun PokemonNavigationView(
                             painter = it.painter,
                             contentDescription = "Loading",
                             modifier = Modifier
-                                .width(190.dp)
-                                .height(190.dp)
+                                .width(320.dp)
+                                .height(320.dp)
                                 .zIndex(1f)
                         )
                     },

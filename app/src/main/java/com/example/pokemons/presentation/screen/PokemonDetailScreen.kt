@@ -1,11 +1,15 @@
 package com.example.pokemons.presentation.screen
 
 import android.os.Build.VERSION.SDK_INT
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FloatAnimationSpec
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -60,7 +64,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,6 +91,7 @@ import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -126,12 +130,38 @@ fun PokemonDetailView(
 
             val scope = rememberCoroutineScope()
 
+            // 현재 선택된 포켓몬의 색상을 별도의 상태로 관리
+            var currentColor by remember { mutableStateOf(Color.White) }
+
+            // 색상 애니메이션
+            val backgroundColor by animateColorAsState(
+                targetValue = currentColor,
+                animationSpec = tween(
+                    durationMillis = 700,
+                    easing = FastOutSlowInEasing,
+                    delayMillis = 100,
+                ),
+                label = "background_color"
+            )
+
+            // uiState가 변경될 때마다 색상 업데이트
+            LaunchedEffect(pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value) {
+                when (val state = uiState.value) {
+                    is PokemonDetailUiState.Success -> {
+                        state.data.find { it.index == pokemonDetailViewModel.selectedPokemonIndex.value }?.let { pokemon ->
+                            currentColor = pokemon.types[0].color
+                        }
+                    }
+                    else -> { /* 다른 상태 처리 */ }
+                }
+            }
+
             when (val state = uiState.value) {
-                is PokemonDetailUiState.Success ->
+                is PokemonDetailUiState.Success -> {
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.types[0].color)
+                            .background(color = backgroundColor)
                     ) {
                         val guideline = createGuidelineFromTop(0.3f)
 
@@ -184,6 +214,8 @@ fun PokemonDetailView(
                             pokemonDetail = state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }
                         )
                     }
+
+                }
 
                 is PokemonDetailUiState.Loading ->
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -269,9 +301,25 @@ fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
         ), label = ""
     )
 
+    var currentColor by remember { mutableStateOf(Color.White) }
+
+    val backgroundColor by animateColorAsState(
+        targetValue = currentColor,
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = FastOutSlowInEasing,
+            delayMillis = 100,
+        ),
+        label = "background_color"
+    )
+
+    LaunchedEffect(type.color) {
+        currentColor = type.color
+    }
+
     Box(
         modifier = modifier
-            .background(color = type.color)
+            .background(color = backgroundColor)
             .fillMaxWidth()
             .height(220.dp),
         contentAlignment = Alignment.CenterEnd,
