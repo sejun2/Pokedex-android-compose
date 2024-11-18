@@ -17,8 +17,8 @@ class PokemonRepository @Inject constructor(private val pokemonApiService: Pokem
     IPokemonRepository {
 
     private val pokemonDetailCache by lazy {
-        Collections.synchronizedMap(
-            mutableMapOf<Int, WeakReference<PokemonDetail>>()
+        Collections.synchronizedMap( // multi-thread safe map
+            mutableMapOf<Int, WeakReference<PokemonDetail>>() // Wrap each pokemonDetail item with WeakReference. Prevent from potential memory leak
         )
     }
 
