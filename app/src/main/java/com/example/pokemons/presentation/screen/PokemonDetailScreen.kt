@@ -3,13 +3,10 @@ package com.example.pokemons.presentation.screen
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.FloatAnimationSpec
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -51,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -91,14 +89,13 @@ import com.example.pokemons.ui.theme.Grayscale
 import com.example.pokemons.ui.theme.PokemonTheme
 import com.example.pokemons.util.capitalizeFirstLowercaseRest
 import com.example.pokemons.util.toPokedexIndex
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonDetailScreen(
     pokemonId: Int,
     onNavigateUp: () -> Boolean,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
         pokemonDetailViewModel.setPokemonIndex(pokemonIndex = pokemonId)
@@ -113,7 +110,7 @@ fun PokemonDetailScreen(
 fun PokemonDetailView(
     onNavigateUp: () -> Boolean,
     pokemonId: Int,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
     val uiState = pokemonDetailViewModel.uiState.collectAsState()
 
@@ -131,28 +128,21 @@ fun PokemonDetailView(
             val scope = rememberCoroutineScope()
 
             // 현재 선택된 포켓몬의 색상을 별도의 상태로 관리
-            var currentColor by remember { mutableStateOf(Color.White) }
-
-            // 색상 애니메이션
-            val backgroundColor by animateColorAsState(
-                targetValue = currentColor,
-                animationSpec = tween(
-                    durationMillis = 700,
-                    easing = FastOutSlowInEasing,
-                    delayMillis = 100,
-                ),
-                label = "background_color"
-            )
+            var backgroundColor by remember { mutableStateOf(Color.White) }
 
             // uiState가 변경될 때마다 색상 업데이트
             LaunchedEffect(pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value) {
                 when (val state = uiState.value) {
                     is PokemonDetailUiState.Success -> {
-                        state.data.find { it.index == pokemonDetailViewModel.selectedPokemonIndex.value }?.let { pokemon ->
-                            currentColor = pokemon.types[0].color
-                        }
+                        state.data.find { it.index == pokemonDetailViewModel.selectedPokemonIndex.value }
+                            ?.let { pokemon ->
+                                backgroundColor = pokemon.types[0].color
+                            }
                     }
-                    else -> { /* 다른 상태 처리 */ }
+
+                    else -> {
+                        //TODO
+                    }
                 }
             }
 
@@ -161,7 +151,7 @@ fun PokemonDetailView(
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = backgroundColor)
+                            .animatedBackgroundColor(color = backgroundColor)
                     ) {
                         val guideline = createGuidelineFromTop(0.3f)
 
@@ -239,7 +229,7 @@ fun PokemonDetailView(
 fun Header(
     modifier: Modifier = Modifier,
     onNavigateUp: () -> Boolean,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel()
+    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
     val uiState = pokemonDetailViewModel.uiState.collectAsState()
     Row(
@@ -288,6 +278,24 @@ fun Header(
 
 }
 
+fun Modifier.animatedBackgroundColor(color: Color): Modifier = composed() {
+    var targetColor = remember { mutableStateOf(Color.White) }
+    val backgroundColor by animateColorAsState(
+        targetValue = targetColor.value,
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = FastOutSlowInEasing,
+            delayMillis = 100,
+        ),
+        label = "background_color"
+    )
+
+    LaunchedEffect(color) {
+        targetColor.value = color
+    }
+
+    this.background(color = backgroundColor)
+}
 
 @Composable
 fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
@@ -301,25 +309,9 @@ fun BackgroundFieldView(modifier: Modifier, type: PokemonType) {
         ), label = ""
     )
 
-    var currentColor by remember { mutableStateOf(Color.White) }
-
-    val backgroundColor by animateColorAsState(
-        targetValue = currentColor,
-        animationSpec = tween(
-            durationMillis = 700,
-            easing = FastOutSlowInEasing,
-            delayMillis = 100,
-        ),
-        label = "background_color"
-    )
-
-    LaunchedEffect(type.color) {
-        currentColor = type.color
-    }
-
     Box(
         modifier = modifier
-            .background(color = backgroundColor)
+            .animatedBackgroundColor(type.color)
             .fillMaxWidth()
             .height(220.dp),
         contentAlignment = Alignment.CenterEnd,
