@@ -9,11 +9,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import java.lang.ref.WeakReference
+import java.util.Collections
 import javax.inject.Inject
 
 class PokemonRepository @Inject constructor(private val pokemonApiService: PokemonApiService) :
     IPokemonRepository {
-    private val pokemonDetailCache = mutableMapOf<Int, PokemonDetail>()
+
+    private val pokemonDetailCache by lazy {
+        Collections.synchronizedMap(
+            mutableMapOf<Int, WeakReference<PokemonDetail>>()
+        )
+    }
 
     override suspend fun getPokemonList(offset: Int, limit: Int): Flow<PokemonSummaryList> = flow {
         val res = pokemonApiService.getPokemonSummaryList(offset, limit)
@@ -38,12 +45,13 @@ class PokemonRepository @Inject constructor(private val pokemonApiService: Pokem
         emit(res.toDomain())
     }.flowOn(Dispatchers.IO)
 
-    private fun getPokemonDetailFromCacheOrNull(pokemonIndex: Int) =
-        pokemonDetailCache[pokemonIndex]
+    private fun getPokemonDetailFromCacheOrNull(pokemonIndex: Int): PokemonDetail? =
+        pokemonDetailCache[pokemonIndex]?.get()
 
 
     private fun setPokemonDetailForCache(pokemonDetail: PokemonDetail): PokemonDetail {
-        pokemonDetailCache[pokemonDetail.index] = pokemonDetail
+        pokemonDetailCache[pokemonDetail.index] = WeakReference(pokemonDetail)
+
         return pokemonDetail
     }
 }
