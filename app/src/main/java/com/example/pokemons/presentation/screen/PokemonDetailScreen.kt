@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -165,7 +167,9 @@ fun PokemonDetailView(
                             .fillMaxSize()
                             .animatedBackgroundColor(color = backgroundColor)
                     ) {
-                        val guideline = createGuidelineFromTop(0.3f)
+                        val screenHeight = LocalConfiguration.current.screenHeightDp
+
+                        val guideline = createGuidelineFromTop((screenHeight * 0.3).dp)
 
                         val (backgroundFieldViewRef, navViewRef, contentViewRef) = createRefs()
 
@@ -182,17 +186,13 @@ fun PokemonDetailView(
                         PokemonNavigationView(
                             Modifier
                                 .constrainAs(navViewRef) {
-                                    bottom.linkTo(guideline)
                                     top.linkTo(guideline)
+                                    bottom.linkTo(guideline)
 
                                     width = Dimension.matchParent
+                                    height = Dimension.wrapContent
                                 }
-                                .padding(bottom = 36.dp)
-                                .onGloballyPositioned { coordinates ->
-                                    navHeight.value = with(density) {
-                                        coordinates.size.height.toDp()
-                                    }
-                                }
+                                .padding(bottom = 16.dp)
                                 .zIndex(2f),
                             pokemonList = state.data,
                             selectedPokemonIndex = pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value,

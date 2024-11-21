@@ -1,11 +1,13 @@
 package com.example.pokemons.presentation.widget
 
+import android.R.attr.maxWidth
 import android.annotation.SuppressLint
 import android.os.Build.VERSION.SDK_INT
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -69,6 +72,9 @@ fun PokemonNavigationView(
             .build()
     }
 
+
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+
     val pagerState = rememberPagerState(
         initialPage = if (selectedPokemonIndex == 1) 0 else 1,
         initialPageOffsetFraction = 0.0f,
@@ -84,15 +90,15 @@ fun PokemonNavigationView(
 
     HorizontalPager(
         state = pagerState,
-        pageSpacing = 16.dp,  // 아이템 간의 간격
-        modifier = Modifier.zIndex(2f),
-        contentPadding = PaddingValues(150.dp),
-        key = { page -> pokemonList[page].index }
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = ((screenWidth - 24) / 3).dp),
+        key = { page -> pokemonList[page].index },
+        verticalAlignment = Alignment.CenterVertically,
     ) { page ->
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .width(250.dp)
-                .height(250.dp)
+                .height(200.dp)
                 .padding(8.dp)
                 .graphicsLayer {
                     // 현재 페이지와의 거리 계산
@@ -105,38 +111,32 @@ fun PokemonNavigationView(
                     scaleX = 1f - (pageOffset * 0.5f)
                     scaleY = 1f - (pageOffset * 0.5f)
                     alpha = 1f - (pageOffset * 0.6f)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        scope.launch {
-                            pagerState.animateScrollToPage(page)
-                        }
+                }
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    scope.launch {
+                        pagerState.animateScrollToPage(page)
                     }
-            ) {
-                SubcomposeAsyncImage(
-                    model = pokemonList.get(page).imageSrc,
-                    contentDescription = "image",
-                    alignment = Alignment.Center,
-                    imageLoader = imageLoader,
-                    success = {
-                        Image(
-                            painter = it.painter,
-                            contentDescription = "Loading",
-                            modifier = Modifier
-                                .width(320.dp)
-                                .height(320.dp)
-                                .zIndex(1f)
-                        )
-                    },
-                )
-            }
+                }
+        ) {
+            SubcomposeAsyncImage(
+                model = pokemonList.get(page).imageSrc,
+                contentDescription = "image",
+                alignment = Alignment.Center,
+                imageLoader = imageLoader,
+                success = {
+                    Image(
+                        painter = it.painter,
+                        contentDescription = "Loading",
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(200.dp)
+                            .zIndex(1f)
+                    )
+                },
+            )
         }
     }
 }
