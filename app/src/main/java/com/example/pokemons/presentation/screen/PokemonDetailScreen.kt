@@ -35,6 +35,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -97,8 +99,18 @@ fun PokemonDetailScreen(
     onNavigateUp: () -> Boolean,
     pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         pokemonDetailViewModel.setPokemonIndex(pokemonIndex = pokemonId)
+        pokemonDetailViewModel.errorEvent.collect { errorMsg ->
+            scope.launch {
+                SnackbarHostState().showSnackbar(
+                    message = errorMsg,
+                    duration = SnackbarDuration.Short,
+                )
+            }
+        }
     }
 
     PokemonTheme {
