@@ -136,32 +136,13 @@ fun PokemonDetailView(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val navHeight = remember { mutableStateOf(0.dp) }
-            val density = LocalDensity.current
-
             val scope = rememberCoroutineScope()
-
-            // 현재 선택된 포켓몬의 색상을 별도의 상태로 관리
-            var backgroundColor by remember { mutableStateOf(Color.White) }
-
-            // uiState가 변경될 때마다 색상 업데이트
-            LaunchedEffect(pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value) {
-                when (val state = uiState.value) {
-                    is PokemonDetailUiState.Success -> {
-                        state.data.find { it.index == pokemonDetailViewModel.selectedPokemonIndex.value }
-                            ?.let { pokemon ->
-                                backgroundColor = pokemon.types[0].color
-                            }
-                    }
-
-                    else -> {
-                        //TODO
-                    }
-                }
-            }
 
             when (val state = uiState.value) {
                 is PokemonDetailUiState.Success -> {
+                    val backgroundColor =
+                        state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.types[0].color
+
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxSize()
