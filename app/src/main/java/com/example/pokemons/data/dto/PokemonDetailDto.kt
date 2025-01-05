@@ -5,6 +5,8 @@ import com.example.pokemons.domain.model.PokemonDetail
 import com.example.pokemons.domain.model.Stats
 import com.example.pokemons.presentation.widget.PokemonType
 import com.google.gson.annotations.SerializedName
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -63,16 +65,16 @@ data class Stat(
 
 //TODO: Fix description
 fun PokemonDetailDto.toDomain(): PokemonDetail {
-    val pokemonType: List<PokemonType> =
+    val pokemonType: ImmutableList<PokemonType> =
         this.types.map { it ->
             try {
                 PokemonType.valueOf(it.type.name.uppercase())
             } catch (e: Exception) {
                 PokemonType.NORMAL
             }
-        }
+        }.toImmutableList()
 
-    val stats: List<Stats> =
+    val stats: ImmutableList<Stats> =
         this.stats.map {
             Stats(
                 name = it.stat.name,
@@ -80,7 +82,7 @@ fun PokemonDetailDto.toDomain(): PokemonDetail {
                 url = it.stat.url,
                 effort = it.effort,
             )
-        }
+        }.toImmutableList()
 
     return PokemonDetail(
         index = id,
@@ -89,7 +91,7 @@ fun PokemonDetailDto.toDomain(): PokemonDetail {
         types = pokemonType,
         statsList = stats,
         description = "Temporal description",
-        moves = this.abilities.map { it.ability.name },
+        moves = this.abilities.map { it.ability.name }.toImmutableList(),
         height = height,
         weight = weight
     )

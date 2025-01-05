@@ -27,6 +27,7 @@ uiTestManifest = "1.6.8"
 uiTestJunit4 = "1.6.8"
 junitJupiter = "5.8.1"
 uiTestJunit4Android = "1.6.8"
+kotlinxCollectionsImmutable = "0.3.8"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -65,6 +66,7 @@ ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = 
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

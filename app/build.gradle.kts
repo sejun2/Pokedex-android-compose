@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.converter.gson)
     implementation(libs.androidx.ui.test.junit4.android)
+    implementation(libs.kotlinx.collections.immutable)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)

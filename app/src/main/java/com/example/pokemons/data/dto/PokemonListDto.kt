@@ -1,11 +1,14 @@
 package com.example.pokemons.data.dto
 
 import android.os.Parcelable
+import com.example.pokemons.domain.model.PokemonSummary
 import com.example.pokemons.domain.model.PokemonSummaryList
 import com.google.gson.annotations.SerializedName
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import okhttp3.internal.immutableListOf
 
 @Parcelize
 data class PokemonListDto(
@@ -26,6 +29,6 @@ fun PokemonListDto.toDomain(): PokemonSummaryList {
         previous = this.previous,
         pokemonSummaryList = this.results?.map {
             it.toDomain()
-        } ?: emptyList()
+        }?.toImmutableList() ?: emptyList<PokemonSummary>().toImmutableList()
     )
 }
