@@ -116,14 +116,13 @@ fun PokemonDetailScreen(
     }
 
     PokemonTheme {
-        PokemonDetailView(onNavigateUp, pokemonId, pokemonDetailViewModel = pokemonDetailViewModel)
+        PokemonDetailView(onNavigateUp, pokemonDetailViewModel = pokemonDetailViewModel)
     }
 }
 
 @Composable
 fun PokemonDetailView(
     onNavigateUp: () -> Boolean,
-    pokemonId: Int,
     pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
 ) {
     val uiState = pokemonDetailViewModel.uiState.collectAsState()
@@ -213,7 +212,11 @@ fun PokemonDetailView(
                     Text(state.msg)
             }
 
-            Header(onNavigateUp = onNavigateUp, pokemonDetailViewModel = pokemonDetailViewModel)
+            Header(
+                onNavigateUp = onNavigateUp,
+                uiState = pokemonDetailViewModel.uiState.collectAsState().value,
+                selectedPokemonIndex = pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value
+            )
         }
     }
 }
@@ -222,9 +225,9 @@ fun PokemonDetailView(
 fun Header(
     modifier: Modifier = Modifier,
     onNavigateUp: () -> Boolean,
-    pokemonDetailViewModel: PokemonDetailViewModel = hiltViewModel(),
+    uiState: PokemonDetailUiState,
+    selectedPokemonIndex: Int,
 ) {
-    val uiState = pokemonDetailViewModel.uiState.collectAsState()
     Row(
         modifier = modifier.padding(end = 12.dp, start = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -241,10 +244,10 @@ fun Header(
 
             )
         }
-        when (val state = uiState.value) {
+        when (uiState) {
             is PokemonDetailUiState.Success -> {
                 Text(
-                    state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.name.capitalizeFirstLowercaseRest(),
+                    uiState.data.first { it.index == selectedPokemonIndex }.name.capitalizeFirstLowercaseRest(),
                     style = TextStyle(
                         color = White,
                         fontWeight = FontWeight.W900,
@@ -254,7 +257,7 @@ fun Header(
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     "#${
-                        state.data.first { it.index == pokemonDetailViewModel.selectedPokemonIndex.collectAsState().value }.index.toString()
+                        uiState.data.first { it.index == selectedPokemonIndex }.index.toString()
                             .toPokedexIndex()
                     }", style = TextStyle(
                         color = White,
@@ -272,7 +275,7 @@ fun Header(
 }
 
 fun Modifier.animatedBackgroundColor(color: Color): Modifier = composed() {
-    var targetColor = remember { mutableStateOf(Color.White) }
+    val targetColor = remember { mutableStateOf(Color.White) }
     val backgroundColor by animateColorAsState(
         targetValue = targetColor.value,
         animationSpec = tween(
