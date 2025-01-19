@@ -8,17 +8,25 @@ import com.example.pokemons.domain.usecase.GetPokemonSummaryListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSummaryListUseCase: GetPokemonSummaryListUseCase) :
@@ -28,6 +36,15 @@ class PokemonSummaryListViewModel @Inject constructor(private val getPokemonSumm
 
     private val _searchValue = MutableStateFlow("")
     val searchValue = _searchValue.asStateFlow()
+
+    @OptIn(FlowPreview::class)
+    val isSearchMode = _searchValue.debounce(250.milliseconds).map {
+        it.isEmpty()
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = false
+    )
 
     private var currentOffset = 0
     private val limit = 30

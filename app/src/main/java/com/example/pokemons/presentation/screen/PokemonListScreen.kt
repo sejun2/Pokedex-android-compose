@@ -72,13 +72,14 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 fun PokemonListScreen(
-    viewModel: PokemonSummaryListViewModel = hiltViewModel(),
     navigateToPokemonDetail: (Int) -> Unit
 ) {
     PokemonTheme {
         Scaffold { innerInsets ->
             Box(Modifier.padding(innerInsets)) {
-                PokemonListView(viewModel, navigateToPokemonDetail)
+                PokemonListView(
+                    navigateToPokemonDetail = navigateToPokemonDetail
+                )
             }
         }
     }
@@ -228,9 +229,7 @@ fun PokemonListView(
         LazyGridState()
     }
 
-    var searchValue by rememberSaveable {
-        mutableStateOf<String>("")
-    }
+    var searchValue = pokemonSummaryListViewModel.searchValue.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -274,7 +273,7 @@ fun PokemonListView(
                         lazyGridState = lazyGridState,
                         onLoadMore = { pokemonSummaryListViewModel.loadMore() },
                         onItemClick = navigateToPokemonDetail,
-                        isSearchMode = pokemonSummaryListViewModel.searchValue.collectAsState().value.isNotEmpty()
+                        isSearchMode = pokemonSummaryListViewModel.isSearchMode.collectAsState().value
                     )
                 }
             }
@@ -311,7 +310,7 @@ fun PokemonList(
     }
 
     LaunchedEffect(shouldLoadMore) {
-        if(isSearchMode) return@LaunchedEffect
+        if (isSearchMode) return@LaunchedEffect
 
         snapshotFlow { shouldLoadMore.value }
             .distinctUntilChanged()
