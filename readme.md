@@ -1,5 +1,9 @@
-# PokeDex Android App
-[Screen_recording_20250117_094554.webm](https://github.com/user-attachments/assets/6fd3dd81-8f22-4dd7-81e6-af681f8857de)
+# PokeDex Android App  
+
+This is a toy project implementing a PokeDex using **Android Jetpack Compose**. The app follows **Clean Architecture** principles with **MVVM (Model-View-ViewModel)** pattern.
+
+For the **KMP version** of the app, click the link below:
+- [Go to PokeDex app using KMP (Compose)](https://github.com/sejun2/PokedexKMP)
 
 <img src="https://github.com/user-attachments/assets/22a510f0-7e90-4d54-8cbe-de49070d1ae6" width="300">
 <img src="https://github.com/user-attachments/assets/31897a7e-1f8a-4da9-a71e-dec7f700dc2e" width="300">
