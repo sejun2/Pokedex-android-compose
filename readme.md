@@ -9,8 +9,6 @@ For the **KMP version** of the app, click the link below:
 <img src="https://github.com/user-attachments/assets/31897a7e-1f8a-4da9-a71e-dec7f700dc2e" width="300">
 <img src="https://github.com/user-attachments/assets/2df0a208-3ba1-4509-9fbf-0d18bac7624a" width="300">
 
-This is a toy project implementing a PokeDex using Android Jetpack Compose. The app follows Clean Architecture principles with MVVM (Model-View-ViewModel) pattern.
-
 ## Architecture Overview
 ```
 ┌─────────────────────────────────────────────────────────────────┐
